@@ -159,6 +159,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Email: contact@lorecraft.com
 - Repository: https://github.com/SeungJaeMin/lorecraftTCGLounge
 
----
-
-🤖 Generated with [Claude Code](https://claude.ai/code)
