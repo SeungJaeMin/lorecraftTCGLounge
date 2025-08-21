@@ -11,9 +11,39 @@
       "Bash(git push:*)",
       "Bash(git pull:*)",
       "Bash(mkdir:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(claude usage --detailed)",
+      "Bash(claude usage --help)",
+      "Bash(claude config list)",
+      "WebFetch(domain:github.com)",
+      "Bash(npm install:*)",
+      "Bash(ccusage daily)",
+      "Bash(bunx:*)",
+      "Bash(npx ccusage:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(ccusage --version)",
+      "Bash(dir:*)",
+      "Bash(echo $APPDATA)",
+      "Bash(grep:*)",
+      "Bash(python:*)",
+      "Bash(echo $HOME)",
+      "Bash(cp:*)",
+      "Bash(chmod:*)",
+      "Bash(echo $PATH)",
+      "Bash(export:*)",
+      "Bash(claude-usage.bat daily)",
+      "Bash(\"/c/Users/minls/.local/bin/claude-usage.bat\" daily)",
+      "Bash(bash \"/c/Users/minls/.local/bin/claude-usage\" daily)",
+      "Bash(bash:*)",
+      "Bash(mv:*)",
+      "Bash(claude-usage-analyzer daily)",
+      "Bash(\"/c/Users/minls/bin/claude-usage-analyzer\" daily)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "C:\\Users\\minls\\.config",
+      "E:\\c\\Users\\minls"
+    ]
   }
 }
