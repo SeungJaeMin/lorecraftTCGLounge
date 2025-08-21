@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # MySQL Database (Development)
+  mysql:
+    image: mysql:8.0
+    container_name: tcg-mysql-dev
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tcg_lounge_dev
+      MYSQL_USER: tcg_user
+      MYSQL_PASSWORD: tcg_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    networks:
+      - tcg-dev-network
+
+  # Redis Cache (Development)
+  redis:
+    image: redis:7-alpine
+    container_name: tcg-redis-dev
+    ports:
+      - "6379:6379"
+    networks:
+      - tcg-dev-network
+
+  # Adminer - Database Management UI
+  adminer:
+    image: adminer
+    container_name: tcg-adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+    networks:
+      - tcg-dev-network
+    depends_on:
+      - mysql
+
+  # Redis Commander - Redis Management UI
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: tcg-redis-commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8082:8081"
+    networks:
+      - tcg-dev-network
+    depends_on:
+      - redis
+
+networks:
+  tcg-dev-network:
+    driver: bridge
+
+volumes:
+  mysql_dev_data:

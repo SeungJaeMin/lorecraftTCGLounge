@@ -13,11 +13,30 @@ Lorecraft TCG Lounge is a web/mobile integrated application that supports:
 
 ## 🏗️ Architecture
 
+### Technology Stack
 - **Backend**: Spring Boot 3.x (Java 17)
-- **Database**: MySQL with Redis caching
+- **Frontend**: React 18 with TypeScript
+- **Database**: MySQL 8.0 with Redis caching
 - **API**: RESTful API + WebSocket for real-time features
 - **Documentation**: Swagger/OpenAPI 3.0
+- **Containerization**: Docker & Docker Compose
 - **Cloud**: AWS/GCP ready with auto-scaling support
+
+### Project Structure
+```
+Workspace_lorecraft_TCG/
+├── backend/              # Spring Boot backend application
+│   ├── src/
+│   ├── pom.xml
+│   └── Dockerfile
+├── frontend/             # React frontend application
+│   ├── src/
+│   ├── package.json
+│   └── Dockerfile
+├── docker-compose.yml    # Full stack orchestration
+├── docker-compose.dev.yml # Development environment
+└── README.md
+```
 
 ## 📦 Domain Structure
 
@@ -30,50 +49,71 @@ Lorecraft TCG Lounge is a web/mobile integrated application that supports:
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Java 17+
-- Maven 3.6+
-- MySQL 8.0+
-- Redis 6.0+
+- Docker & Docker Compose
+- Node.js 18+ (for local development)
+- Java 17+ (for local backend development)
+- MySQL 8.0+ (optional, if not using Docker)
+- Redis 6.0+ (optional, if not using Docker)
 
-### Setup
+### Quick Start with Docker
+
 1. Clone the repository
 ```bash
 git clone https://github.com/SeungJaeMin/lorecraftTCGLounge.git
 cd lorecraftTCGLounge
 ```
 
-2. Configure database
+2. Copy environment variables
 ```bash
-# Create MySQL database
-mysql -u root -p
-CREATE DATABASE tcg_lounge_dev;
-CREATE USER 'tcg_user'@'localhost' IDENTIFIED BY 'tcg_password';
-GRANT ALL PRIVILEGES ON tcg_lounge_dev.* TO 'tcg_user'@'localhost';
+cp .env.example .env
+# Edit .env with your configurations
 ```
 
-3. Start Redis server
+3. Start the full stack
 ```bash
-redis-server
+# Development environment with database UIs
+docker-compose -f docker-compose.dev.yml up -d
+
+# Or production-like environment
+docker-compose up -d
 ```
 
-4. Run the application
+4. Access the applications
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080/api
+- Swagger UI: http://localhost:8080/api/swagger-ui.html
+- Adminer (DB UI): http://localhost:8081
+- Redis Commander: http://localhost:8082
+
+### Local Development
+
+#### Backend
 ```bash
+cd backend
 ./mvnw spring-boot:run
 ```
 
-### API Documentation
-After starting the application, visit:
-- Swagger UI: http://localhost:8080/api/swagger-ui.html
-- API Docs: http://localhost:8080/api/v3/api-docs
+#### Frontend
+```bash
+cd frontend
+npm install
+npm start
+```
 
 ## 🧪 Testing
 
+### Backend Tests
 ```bash
-# Run all tests
+cd backend
 ./mvnw test
-
-# Run with coverage
 ./mvnw test jacoco:report
+```
+
+### Frontend Tests
+```bash
+cd frontend
+npm test
+npm run test:coverage
 ```
 
 ## 📚 Documentation
@@ -109,9 +149,9 @@ After starting the application, visit:
 
 ## 🔧 Development
 
-### Project Structure
+### Backend Structure
 ```
-src/main/java/com/lorecraft/tcglounge/
+backend/src/main/java/com/lorecraft/tcglounge/
 ├── domain/          # Domain logic (card, competition, user, store, content)
 ├── application/     # Application services and orchestration
 ├── api/            # REST controllers and WebSocket handlers
@@ -119,10 +159,24 @@ src/main/java/com/lorecraft/tcglounge/
 └── common/         # Shared utilities and exceptions
 ```
 
+### Frontend Structure
+```
+frontend/src/
+├── components/     # Reusable UI components
+├── pages/         # Page components
+├── services/      # API services
+├── hooks/         # Custom React hooks
+├── utils/         # Utility functions
+├── types/         # TypeScript type definitions
+└── styles/        # Global styles and themes
+```
+
 ### Naming Conventions
-- Services: `[Verb][Object]Service` (e.g., `CreateDeckService`)
-- Repositories: `[Entity]Repository`
-- Controllers: `[Actor]Controller`
+- Backend Services: `[Verb][Object]Service` (e.g., `CreateDeckService`)
+- Backend Repositories: `[Entity]Repository`
+- Backend Controllers: `[Actor]Controller`
+- React Components: PascalCase (e.g., `CardList.tsx`)
+- React Hooks: camelCase with 'use' prefix (e.g., `useAuth.ts`)
 
 ## 📈 Roadmap
 

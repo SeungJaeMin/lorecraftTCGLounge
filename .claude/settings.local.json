@@ -37,7 +37,9 @@
       "Bash(bash:*)",
       "Bash(mv:*)",
       "Bash(claude-usage-analyzer daily)",
-      "Bash(\"/c/Users/minls/bin/claude-usage-analyzer\" daily)"
+      "Bash(\"/c/Users/minls/bin/claude-usage-analyzer\" daily)",
+      "Bash(npx create-react-app:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": [],

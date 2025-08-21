@@ -1,10 +1,9 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-
-### STS ###
+# IDEs and editors
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
 .apt_generated
 .classpath
 .factorypath
@@ -13,38 +12,68 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+# Backend - Spring Boot
+backend/HELP.md
+backend/target/
+backend/*.iml
+backend/.idea/
+backend/.settings/
+backend/.classpath
+backend/.project
+backend/.mvn/wrapper/
+!backend/.mvn/wrapper/maven-wrapper.jar
+backend/logs/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# Frontend - React
+frontend/node_modules/
+frontend/build/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.eslintcache
 
-### VS Code ###
-.vscode/
+# Database
+*.db
+*.sqlite
+mysql_data/
+redis_data/
 
-### Claude Code ###
-.claude/settings.local.json
-
-### OS ###
-.DS_Store
-Thumbs.db
-
-### Environment ###
+# Docker
+docker-compose.override.yml
 .env
 .env.local
 .env.staging
 .env.production
 
-### Logs ###
-logs/
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Logs
 *.log
+logs/
+
+# Package files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Claude Code
+.claude/settings.local.json
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
