@@ -14,7 +14,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Divider
+  Divider,
+  CircularProgress,
+  Alert
 } from '@mui/material';
 import { 
   KeyboardArrowLeft,
@@ -30,6 +32,7 @@ import {
   Apple
 } from '@mui/icons-material';
 import Navigation from '../components/Navigation';
+import authService from '../services/authService';
 
 const MainPage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,6 +41,7 @@ const MainPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [isLogging, setIsLogging] = useState(false);
 
   // 샘플 데이터
   const newsSlides = [
@@ -66,25 +70,46 @@ const MainPage: React.FC = () => {
   };
 
 
-  const handleLogin = () => {
-    // 로그인 검증
-    if (username === 'test' && password === 'test123') {
-      setLoginError('');
-      setLoginModalOpen(false);
-      // 게이머 라운지 페이지로 이동
-      navigate('/gamer-lounge');
-    } else if (username === 'test2' && password === 'test1234') {
-      setLoginError('');
-      setLoginModalOpen(false);
-      // 점주 라운지 페이지로 이동
-      navigate('/store-owner-lounge');
-    } else if (username === 'admin' && password === 'admin123') {
-      setLoginError('');
-      setLoginModalOpen(false);
-      // 관리자 페이지로 이동
-      navigate('/admin');
-    } else {
-      setLoginError('아이디 또는 비밀번호가 틀렸습니다.');
+  const handleLogin = async () => {
+    if (!username || !password) {
+      setLoginError('아이디와 비밀번호를 입력해주세요.');
+      return;
+    }
+
+    setIsLogging(true);
+    setLoginError('');
+
+    try {
+      const response = await authService.login({
+        userid: username,
+        password: password
+      });
+
+      if (response.success) {
+        setLoginModalOpen(false);
+        setUsername('');
+        setPassword('');
+        
+        // 사용자 유형에 따라 리다이렉트
+        const userType = response.data.userType;
+        switch (userType) {
+          case 'GAMER':
+            navigate('/gamer-lounge');
+            break;
+          case 'STORE_OWNER':
+            navigate('/store-owner-lounge');
+            break;
+          case 'ADMIN':
+            navigate('/admin');
+            break;
+          default:
+            navigate('/dashboard');
+        }
+      }
+    } catch (error: any) {
+      setLoginError(error.message || '로그인에 실패했습니다.');
+    } finally {
+      setIsLogging(false);
     }
   };
 
@@ -399,13 +424,18 @@ const MainPage: React.FC = () => {
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {loginError && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {loginError}
+              </Alert>
+            )}
             <TextField
               fullWidth
               label="아이디"
               variant="outlined"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              error={!!loginError}
+              disabled={isLogging}
               sx={{ mt: 1 }}
             />
             <TextField
@@ -415,10 +445,9 @@ const MainPage: React.FC = () => {
               variant="outlined"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              error={!!loginError}
-              helperText={loginError}
+              disabled={isLogging}
               onKeyPress={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === 'Enter' && !isLogging) {
                   handleLogin();
                 }
               }}
@@ -546,6 +575,7 @@ const MainPage: React.FC = () => {
         <DialogActions sx={{ p: 3, pt: 1 }}>
           <Button 
             onClick={handleCloseModal}
+            disabled={isLogging}
             sx={{ 
               flex: 1, 
               py: 1.5,
@@ -559,6 +589,7 @@ const MainPage: React.FC = () => {
           </Button>
           <Button 
             onClick={handleLogin}
+            disabled={isLogging}
             sx={{ 
               flex: 1, 
               py: 1.5,
@@ -566,8 +597,9 @@ const MainPage: React.FC = () => {
               '&:hover': { backgroundColor: '#a01018' }
             }}
             variant="contained"
+            startIcon={isLogging ? <CircularProgress size={20} color="inherit" /> : undefined}
           >
-            로그인
+            {isLogging ? '로그인 중...' : '로그인'}
           </Button>
         </DialogActions>
       </Dialog>

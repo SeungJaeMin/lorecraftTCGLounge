@@ -7,6 +7,40 @@ const api = axios.create({
   timeout: 10000,
 });
 
+// Request interceptor to add JWT token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('tcg_lounge_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor to handle token expiration
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid
+      localStorage.removeItem('tcg_lounge_token');
+      localStorage.removeItem('tcg_lounge_user');
+      
+      // Don't redirect on login/signup pages
+      if (!window.location.pathname.includes('/auth')) {
+        window.location.href = '/';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // 카드 관련 API
 export interface Card {
   id: number;
