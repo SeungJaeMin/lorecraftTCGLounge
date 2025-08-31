@@ -6,13 +6,7 @@ import {
   Box,
   Button,
   TextField,
-  InputAdornment,
   IconButton,
-  Collapse,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Card,
   CardContent,
   CardMedia,
@@ -23,11 +17,8 @@ import {
   Divider
 } from '@mui/material';
 import { 
-  Search,
   KeyboardArrowLeft,
   KeyboardArrowRight,
-  ExpandMore,
-  ExpandLess,
   MenuBook,
   YouTube,
   Event,
@@ -42,9 +33,7 @@ import Navigation from '../components/Navigation';
 
 const MainPage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchOptions, setSearchOptions] = useState(false);
   const [currentNewsSlide, setCurrentNewsSlide] = useState(0);
-  const [currentCardSlide, setCurrentCardSlide] = useState(3); // 중앙이 3번째 카드
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -58,15 +47,6 @@ const MainPage: React.FC = () => {
     { id: 4, image: 'https://via.placeholder.com/800x400/4facfe/ffffff?text=뉴스4', title: '이벤트 안내' },
   ];
 
-  const cardSlides = [
-    { id: 1, image: 'https://via.placeholder.com/200x280/ff6b6b/ffffff?text=카드1', name: '드래곤 카드' },
-    { id: 2, image: 'https://via.placeholder.com/200x280/4ecdc4/ffffff?text=카드2', name: '마법사 카드' },
-    { id: 3, image: 'https://via.placeholder.com/200x280/45b7d1/ffffff?text=카드3', name: '전사 카드' },
-    { id: 4, image: 'https://via.placeholder.com/200x280/f9ca24/ffffff?text=카드4', name: '궁수 카드' },
-    { id: 5, image: 'https://via.placeholder.com/200x280/6c5ce7/ffffff?text=카드5', name: '힐러 카드' },
-    { id: 6, image: 'https://via.placeholder.com/200x280/a8e6cf/ffffff?text=카드6', name: '도적 카드' },
-    { id: 7, image: 'https://via.placeholder.com/200x280/ffd93d/ffffff?text=카드7', name: '팔라딘 카드' },
-  ];
 
   const newsItems = [
     { id: 1, image: 'https://via.placeholder.com/300x200/667eea/ffffff?text=소식1', title: '카드팩 프리오더', date: '2024-08-20' },
@@ -85,13 +65,6 @@ const MainPage: React.FC = () => {
     }
   };
 
-  const handleCardSlide = (direction: 'prev' | 'next') => {
-    if (direction === 'prev') {
-      setCurrentCardSlide(prev => prev === 0 ? cardSlides.length - 1 : prev - 1);
-    } else {
-      setCurrentCardSlide(prev => prev === cardSlides.length - 1 ? 0 : prev + 1);
-    }
-  };
 
   const handleLogin = () => {
     // 로그인 검증
@@ -198,76 +171,6 @@ const MainPage: React.FC = () => {
         </Container>
         </Box>
 
-        {/* 카드검색 섹션 */}
-        <Box sx={{ backgroundColor: '#f5f5f5', py: 6 }}>
-          <Container maxWidth="lg">
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', mb: 4, color: '#333333' }}>
-              카드검색
-            </Typography>
-            
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-              <TextField
-                fullWidth
-                placeholder="카드명을 입력하세요"
-                variant="outlined"
-                sx={{ backgroundColor: 'white' }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton>
-                        <Search />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
-
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-              <Button
-                onClick={() => setSearchOptions(!searchOptions)}
-                startIcon={searchOptions ? <ExpandLess /> : <ExpandMore />}
-                sx={{ backgroundColor: 'transparent', color: '#666', border: '1px solid #ddd', '&:hover': { backgroundColor: '#b8191c', color: 'white' } }}
-              >
-                검색 옵션
-              </Button>
-            </Box>
-
-            <Collapse in={searchOptions}>
-              <Box sx={{ display: 'flex', gap: 2, p: 3, backgroundColor: 'white', borderRadius: 2 }}>
-                <FormControl sx={{ minWidth: 120 }}>
-                  <InputLabel>카드 타입</InputLabel>
-                  <Select label="카드 타입">
-                    <MenuItem value="all">전체</MenuItem>
-                    <MenuItem value="leader">리더</MenuItem>
-                    <MenuItem value="unit">유닛</MenuItem>
-                    <MenuItem value="spell">마법</MenuItem>
-                  </Select>
-                </FormControl>
-                
-                <FormControl sx={{ minWidth: 120 }}>
-                  <InputLabel>희귀도</InputLabel>
-                  <Select label="희귀도">
-                    <MenuItem value="all">전체</MenuItem>
-                    <MenuItem value="common">일반</MenuItem>
-                    <MenuItem value="rare">희귀</MenuItem>
-                    <MenuItem value="legendary">전설</MenuItem>
-                  </Select>
-                </FormControl>
-
-                <FormControl sx={{ minWidth: 120 }}>
-                  <InputLabel>색상</InputLabel>
-                  <Select label="색상">
-                    <MenuItem value="all">전체</MenuItem>
-                    <MenuItem value="red">빨강</MenuItem>
-                    <MenuItem value="blue">파랑</MenuItem>
-                    <MenuItem value="green">초록</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-            </Collapse>
-          </Container>
-        </Box>
 
         {/* 기능탭 섹션 */}
         <Box sx={{ backgroundColor: '#ffffff', py: 6 }}>
@@ -380,81 +283,6 @@ const MainPage: React.FC = () => {
           </Container>
         </Box>
 
-        {/* 카드정보 슬라이드 */}
-        <Box sx={{ backgroundColor: '#333333', py: 6 }}>
-        <Container maxWidth="lg">
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', mb: 4, color: '#ffffff' }}>
-            카드정보
-          </Typography>
-          
-          <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 2 }}>
-            {/* 이전 버튼 */}
-            <IconButton 
-              onClick={() => handleCardSlide('prev')}
-              sx={{ 
-                backgroundColor: 'white', 
-                border: '2px solid #ddd',
-                '&:hover': { backgroundColor: '#f5f5f5' }
-              }}
-            >
-              <KeyboardArrowLeft />
-            </IconButton>
-
-            {/* 카드 슬라이드 컨테이너 */}
-            <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, overflow: 'hidden' }}>
-              {/* 왼쪽 카드들 (3개) */}
-              {[currentCardSlide - 3, currentCardSlide - 2, currentCardSlide - 1].map((index) => (
-                index >= 0 && (
-                  <Box key={index} sx={{ opacity: 0.3, transform: 'scale(0.7)' }}>
-                    <img 
-                      src={cardSlides[index].image}
-                      alt={cardSlides[index].name}
-                      style={{ width: '120px', height: '168px', objectFit: 'cover', borderRadius: '8px' }}
-                    />
-                  </Box>
-                )
-              ))}
-
-              {/* 중앙 카드 */}
-              <Box sx={{ mx: 2 }}>
-                <img 
-                  src={cardSlides[currentCardSlide].image}
-                  alt={cardSlides[currentCardSlide].name}
-                  style={{ width: '200px', height: '280px', objectFit: 'cover', borderRadius: '12px' }}
-                />
-                <Typography variant="h6" sx={{ mt: 2, textAlign: 'center', fontWeight: 'bold', color: '#ffffff' }}>
-                  {cardSlides[currentCardSlide].name}
-                </Typography>
-              </Box>
-
-              {/* 오른쪽 카드들 (3개) */}
-              {[currentCardSlide + 1, currentCardSlide + 2, currentCardSlide + 3].map((index) => (
-                index < cardSlides.length && (
-                  <Box key={index} sx={{ opacity: 0.3, transform: 'scale(0.7)' }}>
-                    <img 
-                      src={cardSlides[index].image}
-                      alt={cardSlides[index].name}
-                      style={{ width: '120px', height: '168px', objectFit: 'cover', borderRadius: '8px' }}
-                    />
-                  </Box>
-                )
-              ))}
-            </Box>
-
-            {/* 다음 버튼 */}
-            <IconButton 
-              onClick={() => handleCardSlide('next')}
-              sx={{ 
-                backgroundColor: 'white', 
-                border: '2px solid #ddd',
-                '&:hover': { backgroundColor: '#f5f5f5' }
-              }}
-            >
-              <KeyboardArrowRight />
-            </IconButton>
-          </Box>
-        </Container>
-        </Box>
 
         {/* 푸터 */}
         <Box sx={{ backgroundColor: '#000000', py: 6 }}>

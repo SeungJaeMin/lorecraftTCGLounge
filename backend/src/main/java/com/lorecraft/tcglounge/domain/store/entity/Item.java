@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "items")
+@Entity(name = "StoreItem")
+@Table(name = "store_items")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter

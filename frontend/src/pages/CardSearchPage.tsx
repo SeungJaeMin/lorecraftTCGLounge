@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -32,85 +33,136 @@ import {
 } from '@mui/icons-material';
 import Navigation from '../components/Navigation';
 
+// 샘플 카드 데이터
+const cards = [
+  {
+    id: 1,
+    name: '화염 드래곤',
+    type: 'UNIT',
+    cost: 8,
+    attack: 8,
+    defense: 6,
+    color: 'RED',
+    rarity: 'LEGENDARY',
+    image: 'https://via.placeholder.com/250x350/ff6b6b/ffffff?text=화염+드래곤',
+    description: '강력한 화염 공격으로 적을 소멸시키는 고대 드래곤'
+  },
+  {
+    id: 2,
+    name: '빙결의 마법사',
+    type: 'UNIT',
+    cost: 5,
+    attack: 3,
+    defense: 5,
+    color: 'BLUE',
+    rarity: 'RARE',
+    image: 'https://via.placeholder.com/250x350/4facfe/ffffff?text=빙결+마법사',
+    description: '적을 얼음으로 묶어 움직임을 봉쇄하는 마법사'
+  },
+  {
+    id: 3,
+    name: '번개 폭풍',
+    type: 'SPELL',
+    cost: 3,
+    color: 'YELLOW',
+    rarity: 'COMMON',
+    image: 'https://via.placeholder.com/250x350/f4c87a/ffffff?text=번개+폭풍',
+    description: '모든 적에게 3 데미지를 준다'
+  },
+  {
+    id: 4,
+    name: '치유의 성수',
+    type: 'SPELL',
+    cost: 2,
+    color: 'WHITE',
+    rarity: 'COMMON',
+    image: 'https://via.placeholder.com/250x350/e8f5e8/333333?text=치유+성수',
+    description: '아군 유닛 하나의 체력을 5 회복한다'
+  },
+  {
+    id: 5,
+    name: '어둠의 검사',
+    type: 'UNIT',
+    cost: 4,
+    attack: 5,
+    defense: 3,
+    color: 'BLACK',
+    rarity: 'RARE',
+    image: 'https://via.placeholder.com/250x350/333333/ffffff?text=어둠+검사',
+    description: '적을 처치할 때마다 공격력이 1 증가한다'
+  },
+  {
+    id: 6,
+    name: '자연의 수호자',
+    type: 'UNIT',
+    cost: 6,
+    attack: 4,
+    defense: 8,
+    color: 'GREEN',
+    rarity: 'SUPER_RARE',
+    image: 'https://via.placeholder.com/250x350/4caf50/ffffff?text=자연+수호자',
+    description: '필드에 있는 동안 모든 아군의 방어력이 2 증가한다'
+  }
+];
+
 const CardSearchPage: React.FC = () => {
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [cardType, setCardType] = useState('all');
   const [rarity, setRarity] = useState('all');
   const [color, setColor] = useState('all');
   const [cost, setCost] = useState('all');
+  const [filteredCards, setFilteredCards] = useState(cards);
 
-  // 샘플 카드 데이터
-  const cards = [
-    {
-      id: 1,
-      name: '화염 드래곤',
-      type: 'UNIT',
-      cost: 8,
-      attack: 8,
-      defense: 6,
-      color: 'RED',
-      rarity: 'LEGENDARY',
-      image: 'https://via.placeholder.com/250x350/ff6b6b/ffffff?text=화염+드래곤',
-      description: '강력한 화염 공격으로 적을 소멸시키는 고대 드래곤'
-    },
-    {
-      id: 2,
-      name: '빙결의 마법사',
-      type: 'UNIT',
-      cost: 5,
-      attack: 3,
-      defense: 5,
-      color: 'BLUE',
-      rarity: 'RARE',
-      image: 'https://via.placeholder.com/250x350/4facfe/ffffff?text=빙결+마법사',
-      description: '적을 얼음으로 묶어 움직임을 봉쇄하는 마법사'
-    },
-    {
-      id: 3,
-      name: '번개 폭풍',
-      type: 'SPELL',
-      cost: 3,
-      color: 'YELLOW',
-      rarity: 'COMMON',
-      image: 'https://via.placeholder.com/250x350/f4c87a/ffffff?text=번개+폭풍',
-      description: '모든 적에게 3 데미지를 준다'
-    },
-    {
-      id: 4,
-      name: '치유의 성수',
-      type: 'SPELL',
-      cost: 2,
-      color: 'WHITE',
-      rarity: 'COMMON',
-      image: 'https://via.placeholder.com/250x350/e8f5e8/333333?text=치유+성수',
-      description: '아군 유닛 하나의 체력을 5 회복한다'
-    },
-    {
-      id: 5,
-      name: '어둠의 검사',
-      type: 'UNIT',
-      cost: 4,
-      attack: 5,
-      defense: 3,
-      color: 'BLACK',
-      rarity: 'RARE',
-      image: 'https://via.placeholder.com/250x350/333333/ffffff?text=어둠+검사',
-      description: '적을 처치할 때마다 공격력이 1 증가한다'
-    },
-    {
-      id: 6,
-      name: '자연의 수호자',
-      type: 'UNIT',
-      cost: 6,
-      attack: 4,
-      defense: 8,
-      color: 'GREEN',
-      rarity: 'SUPER_RARE',
-      image: 'https://via.placeholder.com/250x350/4caf50/ffffff?text=자연+수호자',
-      description: '필드에 있는 동안 모든 아군의 방어력이 2 증가한다'
+  // URL 파라미터에서 검색 조건을 가져와 상태 설정
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const query = params.get('query') || '';
+    const type = params.get('type') || 'all';
+    const rarityParam = params.get('rarity') || 'all';
+    const colorParam = params.get('color') || 'all';
+    
+    setSearchQuery(query);
+    setCardType(type);
+    setRarity(rarityParam);
+    setColor(colorParam);
+    
+    if (query || type !== 'all' || rarityParam !== 'all' || colorParam !== 'all') {
+      setFiltersOpen(true);
     }
-  ];
+  }, [location.search]);
+
+  // 필터링 로직
+  useEffect(() => {
+    let filtered = cards;
+    
+    // 검색어 필터링
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(card => 
+        card.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        card.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    // 타입 필터링
+    if (cardType !== 'all') {
+      filtered = filtered.filter(card => card.type === cardType);
+    }
+    
+    // 희귀도 필터링
+    if (rarity !== 'all') {
+      filtered = filtered.filter(card => card.rarity === rarity);
+    }
+    
+    // 색상 필터링
+    if (color !== 'all') {
+      filtered = filtered.filter(card => card.color === color);
+    }
+    
+    setFilteredCards(filtered);
+  }, [searchQuery, cardType, rarity, color]);
+
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
@@ -259,10 +311,10 @@ const CardSearchPage: React.FC = () => {
         {/* 검색 결과 */}
         <Box sx={{ mb: 4 }}>
           <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 3, color: '#333' }}>
-            검색 결과 ({cards.length}장)
+            검색 결과 ({filteredCards.length}장)
           </Typography>
           <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-            {cards.map((card) => (
+            {filteredCards.map((card) => (
               <Box key={card.id} sx={{ flex: '1 1 280px', minWidth: '280px' }}>
                 <Card sx={{ 
                   height: '100%',
@@ -330,7 +382,7 @@ const CardSearchPage: React.FC = () => {
         {/* 페이지네이션 */}
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <Pagination 
-            count={Math.ceil(cards.length / 8)} 
+            count={Math.ceil(filteredCards.length / 8)} 
             color="primary"
             size="large"
           />

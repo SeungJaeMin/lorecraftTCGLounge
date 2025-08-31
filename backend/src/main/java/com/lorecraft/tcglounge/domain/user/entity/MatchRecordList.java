@@ -1,6 +1,6 @@
 package com.lorecraft.tcglounge.domain.user.entity;
 
-import com.lorecraft.tcglounge.domain.competition.entity.MatchResult;
+import com.lorecraft.tcglounge.domain.competition.entity.Match;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -65,28 +65,23 @@ public class MatchRecordList {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 연관관계
-    @OneToMany(mappedBy = "gamerRecord", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<MatchResult> matchResults = new ArrayList<>();
+    // 연관관계 - Match와 직접 연결하지 않고, 통계만 관리
+    // 필요시 별도의 매핑 테이블을 통해 관리
 
     // 비즈니스 메서드
-    public void addMatchResult(MatchResult matchResult) {
-        matchResults.add(matchResult);
-        matchResult.setGamerRecord(this);
-        updateStatistics();
+    public void recordWin() {
+        this.wins++;
+        this.totalMatches++;
     }
 
-    public void updateStatistics() {
-        this.totalMatches = matchResults.size();
-        this.wins = (int) matchResults.stream()
-            .filter(result -> result.isWin())
-            .count();
-        this.losses = (int) matchResults.stream()
-            .filter(result -> result.isLoss())
-            .count();
-        this.draws = (int) matchResults.stream()
-            .filter(result -> result.isDraw())
-            .count();
+    public void recordLoss() {
+        this.losses++;
+        this.totalMatches++;
+    }
+
+    public void recordDraw() {
+        this.draws++;
+        this.totalMatches++;
     }
 
     public double getWinRate() {
@@ -107,16 +102,5 @@ public class MatchRecordList {
 
     public boolean hasPlayedThisSeason() {
         return totalMatches > 0;
-    }
-
-    public int getRecentFormCount() {
-        return Math.min(5, matchResults.size());
-    }
-
-    public List<MatchResult> getRecentMatches(int count) {
-        return matchResults.stream()
-            .sorted((a, b) -> b.getMatchDate().compareTo(a.getMatchDate()))
-            .limit(count)
-            .toList();
     }
 }

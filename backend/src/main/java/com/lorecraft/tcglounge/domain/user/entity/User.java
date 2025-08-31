@@ -49,7 +49,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    protected Boolean isActive = true;
 
     @Column(name = "user_type", insertable = false, updatable = false)
     private String userType;
