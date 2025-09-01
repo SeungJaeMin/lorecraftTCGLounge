@@ -60,7 +60,6 @@ public class SecurityConfig {
                 .requestMatchers("/test/**").permitAll()  
                 .requestMatchers("/v1/public/**").permitAll()
                 .requestMatchers("/public/**").permitAll()
-                .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/v1/admin/**").hasRole("ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
