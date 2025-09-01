@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Component
-@Profile("disable-for-now")
+@Profile("dev")
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 

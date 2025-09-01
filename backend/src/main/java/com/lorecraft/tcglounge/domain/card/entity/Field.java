@@ -8,17 +8,15 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
+@Table(name = "field")
 @DiscriminatorValue("FIELD")
+@PrimaryKeyJoinColumn(name = "card_id")
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Field extends Card {
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "field_type", nullable = false)
-    private FieldType fieldType;
 
     @Column(name = "field_effect", columnDefinition = "TEXT")
     private String fieldEffect;
@@ -41,19 +39,10 @@ public class Field extends Card {
     @Column(name = "maintenance_cost")
     private Integer maintenanceCost;
 
-    // 비즈니스 메서드
-    public boolean isEnvironment() {
-        return fieldType == FieldType.ENVIRONMENT;
-    }
+    @Column(name = "burst_value", nullable = false)
+    private Integer burstValue;  // 1~3
 
-    public boolean isTerrain() {
-        return fieldType == FieldType.TERRAIN;
-    }
-
-    public boolean isWeather() {
-        return fieldType == FieldType.WEATHER;
-    }
-
+    // 비즈니스 메서드 - ERD V0.3 간소화
     public boolean hasFieldEffect() {
         return fieldEffect != null && !fieldEffect.trim().isEmpty();
     }
@@ -74,30 +63,11 @@ public class Field extends Card {
         return maintenanceCost != null && maintenanceCost > 0;
     }
 
-    public boolean canCoexistWith(Field otherField) {
-        return !this.fieldType.equals(otherField.fieldType) || maxActiveCount > 1;
-    }
-
     public boolean isStackable() {
         return maxActiveCount != null && maxActiveCount > 1;
     }
 
-    // Enum 정의
-    public enum FieldType {
-        ENVIRONMENT("환경"),
-        TERRAIN("지형"),
-        WEATHER("날씨"),
-        DIMENSION("차원"),
-        BARRIER("결계");
-
-        private final String koreanName;
-
-        FieldType(String koreanName) {
-            this.koreanName = koreanName;
-        }
-
-        public String getKoreanName() {
-            return koreanName;
-        }
+    public boolean isValidBurstValue() {
+        return burstValue >= 1 && burstValue <= 3;
     }
 }

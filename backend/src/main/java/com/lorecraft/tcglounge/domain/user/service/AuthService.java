@@ -108,7 +108,7 @@ public class AuthService {
     }
 
     private void validateUserRegistration(String userid, String email) {
-        if (userRepository.existsByIdField(userid)) {
+        if (userRepository.existsByid(userid)) {
             throw new IllegalArgumentException("이미 존재하는 사용자 ID입니다.");
         }
         if (userRepository.existsByEmail(email)) {
@@ -118,7 +118,7 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public boolean existsByUserid(String userid) {
-        return userRepository.existsByIdField(userid);
+        return userRepository.existsByid(userid);
     }
 
     @Transactional(readOnly = true)

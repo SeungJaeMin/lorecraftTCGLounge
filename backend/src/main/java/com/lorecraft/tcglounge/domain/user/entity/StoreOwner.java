@@ -4,6 +4,7 @@ import com.lorecraft.tcglounge.domain.competition.entity.Competition;
 import com.lorecraft.tcglounge.domain.store.entity.OrderList;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "store_owners")
+@Table(name = "user_store_owner")
 @DiscriminatorValue("STORE_OWNER")
 @PrimaryKeyJoinColumn(name = "user_id")
 @Getter
@@ -39,16 +40,20 @@ public class StoreOwner extends User {
     private String contactNumber;
 
     @Column(name = "is_verified", nullable = false)
+    @Builder.Default
     private Boolean isVerified = false;
 
     @Column(name = "is_authorized", nullable = false)
+    @Builder.Default
     private Boolean isAuthorized = false;
 
     // 연관관계
     @OneToMany(mappedBy = "assignedStoreOwner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<Competition> managedCompetitions = new ArrayList<>();
 
     @OneToMany(mappedBy = "storeOwner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<OrderList> orderLists = new ArrayList<>();
 
     // 비즈니스 메서드

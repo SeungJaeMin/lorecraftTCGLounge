@@ -3,6 +3,7 @@ package com.lorecraft.tcglounge.domain.user.entity;
 import com.lorecraft.tcglounge.domain.content.entity.Content;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "admins")
+@Table(name = "user_admin")
 @DiscriminatorValue("ADMIN")
 @PrimaryKeyJoinColumn(name = "user_id")
 @Getter
@@ -23,6 +24,7 @@ import java.util.List;
 public class Admin extends User {
 
     @Column(name = "admin_level", nullable = false)
+    @Builder.Default
     private Integer adminLevel = 1;
 
     @Column(name = "department", length = 50)
@@ -32,19 +34,24 @@ public class Admin extends User {
     private String employeeId;
 
     @Column(name = "can_manage_users", nullable = false)
+    @Builder.Default
     private Boolean canManageUsers = false;
 
     @Column(name = "can_manage_competitions", nullable = false)
+    @Builder.Default
     private Boolean canManageCompetitions = false;
 
     @Column(name = "can_manage_content", nullable = false)
+    @Builder.Default
     private Boolean canManageContent = false;
 
     @Column(name = "can_manage_system", nullable = false)
+    @Builder.Default
     private Boolean canManageSystem = false;
 
     // 연관관계
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<Content> createdContents = new ArrayList<>();
 
     // 비즈니스 메서드

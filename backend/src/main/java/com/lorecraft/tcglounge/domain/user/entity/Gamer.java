@@ -4,6 +4,7 @@ import com.lorecraft.tcglounge.domain.card.entity.CardDeck;
 import com.lorecraft.tcglounge.domain.competition.entity.Enrollment;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "gamers")
+@Table(name = "user_gamer")
 @DiscriminatorValue("GAMER")
 @PrimaryKeyJoinColumn(name = "user_id")
 @Getter
@@ -27,25 +28,32 @@ public class Gamer extends User {
     private String nickname;
 
     @Column(name = "total_wins", nullable = false)
+    @Builder.Default
     private Integer totalWins = 0;
 
     @Column(name = "total_losses", nullable = false)
+    @Builder.Default
     private Integer totalLosses = 0;
 
     @Column(name = "total_draws", nullable = false)
+    @Builder.Default
     private Integer totalDraws = 0;
 
     @Column(name = "current_rating", nullable = false)
+    @Builder.Default
     private Integer currentRating = 1000;
 
     @Column(name = "highest_rating", nullable = false)
+    @Builder.Default
     private Integer highestRating = 1000;
 
     // 연관관계
     @OneToMany(mappedBy = "gamer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<CardDeck> cardDecks = new ArrayList<>();
 
     @OneToMany(mappedBy = "gamer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<Enrollment> enrollments = new ArrayList<>();
 
     @OneToOne(mappedBy = "gamer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

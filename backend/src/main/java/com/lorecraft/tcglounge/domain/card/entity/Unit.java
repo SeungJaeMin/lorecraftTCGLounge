@@ -8,7 +8,9 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
+@Table(name = "unit")
 @DiscriminatorValue("UNIT")
+@PrimaryKeyJoinColumn(name = "card_id")
 @Getter
 @Setter
 @SuperBuilder
@@ -16,56 +18,14 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class Unit extends Card {
 
-    @Column(name = "attack_power", nullable = false)
-    private Integer attackPower;
+    @Column(name = "power", nullable = false)
+    private Integer power;
 
-    @Column(name = "defense_power", nullable = false)
-    private Integer defensePower;
+    @Column(name = "burst_value", nullable = false)
+    private Integer burstValue;  // 1~3
 
-    @Column(name = "unit_type", length = 50)
-    private String unitType;
-
-    @Column(name = "tribe", length = 50)
-    private String tribe;
-
-    @Column(name = "special_ability", columnDefinition = "TEXT")
-    private String specialAbility;
-
-    @Column(name = "summon_condition", columnDefinition = "TEXT")
-    private String summonCondition;
-
-    @Column(name = "can_attack_leader", nullable = false)
-    private Boolean canAttackLeader = true;
-
-    @Column(name = "can_block", nullable = false)
-    private Boolean canBlock = true;
-
-    // 비즈니스 메서드
-    public boolean isStrongAgainst(Unit other) {
-        return this.attackPower > other.defensePower;
-    }
-
-    public boolean canDefeatInBattle(Unit other) {
-        return this.attackPower >= other.defensePower;
-    }
-
-    public boolean hasSpecialAbility() {
-        return specialAbility != null && !specialAbility.trim().isEmpty();
-    }
-
-    public boolean hasSummonCondition() {
-        return summonCondition != null && !summonCondition.trim().isEmpty();
-    }
-
-    public boolean isSameTribe(Unit other) {
-        return this.tribe != null && this.tribe.equals(other.tribe);
-    }
-
-    public int getBattlePower() {
-        return attackPower + defensePower;
-    }
-
-    public boolean canParticipateInBattle() {
-        return canAttackLeader || canBlock;
+    // 비즈니스 메서드 - ERD V0.3 간소화
+    public boolean isValidBurstValue() {
+        return burstValue >= 1 && burstValue <= 3;
     }
 }

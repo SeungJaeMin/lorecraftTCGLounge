@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "cards")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Table(name = "card")
+@Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "card_type")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
@@ -41,11 +41,10 @@ public class Card {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "card_color", nullable = false)
+    @Column(name = "card_color")
     private CardColor cardColor;
 
-    @Column(name = "burst_number")
-    private Integer burstNumber;
+    // burst_number 필드 제거 - 각 하위 엔티티에서 관리
 
     @Column(name = "rarity", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -54,11 +53,7 @@ public class Card {
     @Column(name = "cost")
     private Integer cost;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
-
-    @Column(name = "release_set", length = 50)
-    private String releaseSet;
+    // 간소화된 필드 구조 - ERD V0.3
 
     @Column(name = "card_number", length = 20)
     private String cardNumber;
@@ -78,14 +73,7 @@ public class Card {
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DeckCard> deckCards = new ArrayList<>();
 
-    // 비즈니스 메서드
-    public void deactivate() {
-        this.isActive = false;
-    }
-
-    public void activate() {
-        this.isActive = true;
-    }
+    // 비즈니스 메서드 - ERD V0.3 간소화
 
     public boolean isLeader() {
         return this instanceof Leader;
@@ -108,11 +96,7 @@ public class Card {
     }
 
     public String getFullCardNumber() {
-        return releaseSet + "-" + cardNumber;
-    }
-
-    public boolean canBeUsedInDeck() {
-        return isActive;
+        return cardNumber;
     }
 
     public void addToDeck(DeckCard deckCard) {
@@ -131,7 +115,6 @@ public class Card {
         BLUE("청색"), 
         GREEN("녹색"),
         YELLOW("황색"),
-        WHITE("백색"),
         BLACK("흑색"),
         COLORLESS("무색");
 

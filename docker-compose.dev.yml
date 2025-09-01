@@ -11,11 +11,15 @@ services:
       MYSQL_USER: tcg_user
       MYSQL_PASSWORD: tcg_password
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_dev_data:/var/lib/mysql
     networks:
       - tcg-dev-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   # Redis Cache (Development)
   redis:
@@ -53,6 +57,27 @@ services:
       - tcg-dev-network
     depends_on:
       - redis
+
+  # Spring Boot Backend (MySQL Development)  
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tcg-backend-dev
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/tcg_lounge_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=tcg_user
+      - SPRING_DATASOURCE_PASSWORD=tcg_password
+      - JWT_SECRET=lorecraft-tcg-lounge-jwt-secret-key-for-development-very-long-secret
+      - JWT_EXPIRATION=86400
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - tcg-dev-network
 
 networks:
   tcg-dev-network:

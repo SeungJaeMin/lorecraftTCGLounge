@@ -8,7 +8,9 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
+@Table(name = "leader")
 @DiscriminatorValue("LEADER")
+@PrimaryKeyJoinColumn(name = "card_id")
 @Getter
 @Setter
 @SuperBuilder
@@ -30,6 +32,15 @@ public class Leader extends Card {
 
     @Column(name = "is_awakened", nullable = false)
     private Boolean isAwakened = false;
+
+    @Column(name = "burst_slot1", nullable = false)
+    private Integer burstSlot1;  // 1~3
+
+    @Column(name = "burst_slot2", nullable = false)
+    private Integer burstSlot2;  // 1~3
+
+    @Column(name = "burst_slot3", nullable = false)
+    private Integer burstSlot3;  // 1~3
 
     // 비즈니스 메서드
     public void awaken() {

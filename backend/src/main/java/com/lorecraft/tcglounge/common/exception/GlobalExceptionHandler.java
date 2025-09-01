@@ -1,6 +1,8 @@
 package com.lorecraft.tcglounge.common.exception;
 
 import com.lorecraft.tcglounge.common.dto.ApiResponse;
+import com.lorecraft.tcglounge.config.ErrorCode;
+import com.lorecraft.tcglounge.config.MessageConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -27,8 +29,17 @@ public class GlobalExceptionHandler {
         log.error("Validation Exception: {}", e.getMessage(), e);
         
         return ResponseEntity
-            .badRequest()
-            .body(ApiResponse.error("Invalid input parameters"));
+            .status(ErrorCode.VALIDATION_FAILED.getHttpStatus())
+            .body(ApiResponse.error(MessageConstants.Error.VALIDATION_FAILED));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.error("IllegalArgumentException: {}", e.getMessage(), e);
+        
+        return ResponseEntity
+            .status(ErrorCode.INVALID_INPUT.getHttpStatus())
+            .body(ApiResponse.error(e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
@@ -36,7 +47,7 @@ public class GlobalExceptionHandler {
         log.error("Unexpected Exception: {}", e.getMessage(), e);
         
         return ResponseEntity
-            .internalServerError()
-            .body(ApiResponse.error("Internal server error"));
+            .status(ErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
+            .body(ApiResponse.error(MessageConstants.Error.INTERNAL_ERROR));
     }
 }

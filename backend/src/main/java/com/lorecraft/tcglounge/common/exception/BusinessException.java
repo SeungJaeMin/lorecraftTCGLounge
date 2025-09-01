@@ -1,5 +1,6 @@
 package com.lorecraft.tcglounge.common.exception;
 
+import com.lorecraft.tcglounge.config.ErrorCode;
 import lombok.Getter;
 
 @Getter
