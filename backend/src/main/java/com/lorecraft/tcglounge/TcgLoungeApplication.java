@@ -2,14 +2,10 @@ package com.lorecraft.tcglounge;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.lorecraft.tcglounge")
-@EnableCaching
-@EnableAsync
+@EnableJpaAuditing
 public class TcgLoungeApplication {
 
     public static void main(String[] args) {

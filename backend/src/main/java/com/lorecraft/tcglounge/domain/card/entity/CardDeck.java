@@ -1,13 +1,7 @@
 package com.lorecraft.tcglounge.domain.card.entity;
 
 import com.lorecraft.tcglounge.domain.user.entity.Gamer;
-import com.lorecraft.tcglounge.domain.competition.entity.Enrollment;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -15,218 +9,126 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "card_decks")
 @EntityListeners(AuditingEntityListener.class)
-@Getter
-@Setter
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
 public class CardDeck {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "deck_name", nullable = false, length = 100)
-    private String deckName;
-
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
-
-    @Column(name = "is_public", nullable = false)
-    private Boolean isPublic = false;
-
-    @Column(name = "is_valid", nullable = false)
-    private Boolean isValid = false;
-
-    @Column(name = "format_type", length = 50)
-    private String formatType;
-
-    @Column(name = "total_cards", nullable = false)
-    private Integer totalCards = 0;
-
-    @Column(name = "deck_code", unique = true, length = 20)
-    private String deckCode;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "deck_status", nullable = false)
-    private DeckStatus deckStatus = DeckStatus.DRAFT;
-
-    @CreatedDate
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    // 연관관계
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gamer_id", nullable = false)
     private Gamer gamer;
-
-    @OneToMany(mappedBy = "deck", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<DeckCard> deckCards = new ArrayList<>();
-
-    @OneToMany(mappedBy = "selectedDeck", fetch = FetchType.LAZY)
-    private List<Enrollment> enrollments = new ArrayList<>();
-
-    // 비즈니스 메서드
-    public void addCard(Card card, int quantity) {
-        DeckCard existingDeckCard = findDeckCard(card);
-        if (existingDeckCard != null) {
-            existingDeckCard.increaseQuantity(quantity);
-        } else {
-            DeckCard newDeckCard = DeckCard.builder()
-                .deck(this)
-                .card(card)
-                .quantity(quantity)
-                .build();
-            deckCards.add(newDeckCard);
-        }
-        updateTotalCards();
-        validateDeck();
+    
+    @Column(name = "deck_name", nullable = false)
+    private String deckName;
+    
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "deck_type")
+    private DeckType deckType = DeckType.STANDARD;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "leader_card_id")
+    private Card leaderCard;
+    
+    @Column(name = "is_public")
+    private Boolean isPublic = false;
+    
+    @Column(name = "is_tournament_legal")
+    private Boolean isTournamentLegal = false;
+    
+    @Column(name = "total_cards")
+    private Integer totalCards = 0;
+    
+    @Column(name = "deck_code", unique = true)
+    private String deckCode;
+    
+    @Column(name = "likes_count")
+    private Integer likesCount = 0;
+    
+    @Column(name = "views_count")
+    private Integer viewsCount = 0;
+    
+    @CreatedDate
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+    
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    
+    @OneToMany(mappedBy = "deck", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<DeckDetail> deckDetails = new ArrayList<>();
+    
+    public CardDeck() {}
+    
+    public CardDeck(Gamer gamer, String deckName) {
+        this.gamer = gamer;
+        this.deckName = deckName;
+        generateDeckCode();
     }
-
-    public void removeCard(Card card, int quantity) {
-        DeckCard deckCard = findDeckCard(card);
-        if (deckCard != null) {
-            deckCard.decreaseQuantity(quantity);
-            if (deckCard.getQuantity() <= 0) {
-                deckCards.remove(deckCard);
-            }
-        }
-        updateTotalCards();
-        validateDeck();
+    
+    // Getters
+    public Long getId() { return id; }
+    public Gamer getGamer() { return gamer; }
+    public String getDeckName() { return deckName; }
+    public String getDescription() { return description; }
+    public DeckType getDeckType() { return deckType; }
+    public Card getLeaderCard() { return leaderCard; }
+    public Boolean getIsPublic() { return isPublic; }
+    public Boolean getIsTournamentLegal() { return isTournamentLegal; }
+    public Integer getTotalCards() { return totalCards; }
+    public String getDeckCode() { return deckCode; }
+    public Integer getLikesCount() { return likesCount; }
+    public Integer getViewsCount() { return viewsCount; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public List<DeckDetail> getDeckDetails() { return deckDetails; }
+    
+    // Setters
+    public void setId(Long id) { this.id = id; }
+    public void setGamer(Gamer gamer) { this.gamer = gamer; }
+    public void setDeckName(String deckName) { this.deckName = deckName; }
+    public void setDescription(String description) { this.description = description; }
+    public void setDeckType(DeckType deckType) { this.deckType = deckType; }
+    public void setLeaderCard(Card leaderCard) { this.leaderCard = leaderCard; }
+    public void setIsPublic(Boolean isPublic) { this.isPublic = isPublic; }
+    public void setIsTournamentLegal(Boolean isTournamentLegal) { this.isTournamentLegal = isTournamentLegal; }
+    public void setTotalCards(Integer totalCards) { this.totalCards = totalCards; }
+    public void setDeckCode(String deckCode) { this.deckCode = deckCode; }
+    public void setLikesCount(Integer likesCount) { this.likesCount = likesCount; }
+    public void setViewsCount(Integer viewsCount) { this.viewsCount = viewsCount; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public void setDeckDetails(List<DeckDetail> deckDetails) { this.deckDetails = deckDetails; }
+    
+    // Business methods
+    public void incrementViews() {
+        this.viewsCount++;
     }
-
-    public void removeCard(Card card) {
-        deckCards.removeIf(deckCard -> deckCard.getCard().equals(card));
-        updateTotalCards();
-        validateDeck();
+    
+    public void incrementLikes() {
+        this.likesCount++;
     }
-
-    private DeckCard findDeckCard(Card card) {
-        return deckCards.stream()
-            .filter(deckCard -> deckCard.getCard().equals(card))
-            .findFirst()
-            .orElse(null);
-    }
-
+    
     public void updateTotalCards() {
-        this.totalCards = deckCards.stream()
-            .mapToInt(DeckCard::getQuantity)
+        this.totalCards = deckDetails.stream()
+            .mapToInt(DeckDetail::getQuantity)
             .sum();
     }
-
-    public void validateDeck() {
-        boolean hasLeader = hasLeaderCard();
-        boolean isValidSize = isValidDeckSize();
-        boolean hasValidCardLimits = hasValidCardLimits();
-        
-        this.isValid = hasLeader && isValidSize && hasValidCardLimits;
-        
-        if (isValid && deckStatus == DeckStatus.DRAFT) {
-            this.deckStatus = DeckStatus.COMPLETED;
-        } else if (!isValid && deckStatus == DeckStatus.COMPLETED) {
-            this.deckStatus = DeckStatus.DRAFT;
-        }
+    
+    private void generateDeckCode() {
+        this.deckCode = "DECK_" + System.currentTimeMillis();
     }
-
-    private boolean hasLeaderCard() {
-        return deckCards.stream()
-            .anyMatch(deckCard -> deckCard.getCard().isLeader());
-    }
-
-    private boolean isValidDeckSize() {
-        return totalCards >= 40 && totalCards <= 60; // 일반적인 TCG 덱 사이즈
-    }
-
-    private boolean hasValidCardLimits() {
-        return deckCards.stream()
-            .allMatch(deckCard -> deckCard.getQuantity() <= getMaxCopiesPerCard(deckCard.getCard()));
-    }
-
-    private int getMaxCopiesPerCard(Card card) {
-        if (card.isLeader()) return 1;
-        if (card.getRarity() == Card.CardRarity.LEGENDARY) return 1;
-        if (card.getRarity() == Card.CardRarity.SECRET_RARE) return 2;
-        return 3; // 기본 최대 복사본 수
-    }
-
-    public void publish() {
-        if (isValid) {
-            this.isPublic = true;
-            this.deckStatus = DeckStatus.PUBLISHED;
-        }
-    }
-
-    public void unpublish() {
-        this.isPublic = false;
-        this.deckStatus = DeckStatus.COMPLETED;
-    }
-
-    public void archive() {
-        this.deckStatus = DeckStatus.ARCHIVED;
-        this.isPublic = false;
-    }
-
-    public Map<Card.CardColor, Long> getColorDistribution() {
-        return deckCards.stream()
-            .collect(Collectors.groupingBy(
-                deckCard -> deckCard.getCard().getCardColor(),
-                Collectors.summingLong(DeckCard::getQuantity)
-            ));
-    }
-
-    public Map<String, Long> getTypeDistribution() {
-        return deckCards.stream()
-            .collect(Collectors.groupingBy(
-                deckCard -> deckCard.getCard().getCardType(),
-                Collectors.summingLong(DeckCard::getQuantity)
-            ));
-    }
-
-    public boolean canBeUsedInCompetition() {
-        return isValid && (deckStatus == DeckStatus.COMPLETED || deckStatus == DeckStatus.PUBLISHED);
-    }
-
-    public int getUniqueCardCount() {
-        return deckCards.size();
-    }
-
-    public double getAverageCost() {
-        return deckCards.stream()
-            .filter(deckCard -> deckCard.getCard().getCost() != null)
-            .mapToDouble(deckCard -> deckCard.getCard().getCost() * deckCard.getQuantity())
-            .average()
-            .orElse(0.0);
-    }
-
-    // Enum 정의
-    public enum DeckStatus {
-        DRAFT("작성중"),
-        COMPLETED("완성"),
-        PUBLISHED("공개"),
-        ARCHIVED("보관");
-
-        private final String koreanName;
-
-        DeckStatus(String koreanName) {
-            this.koreanName = koreanName;
-        }
-
-        public String getKoreanName() {
-            return koreanName;
-        }
-
-        public boolean isActive() {
-            return this == COMPLETED || this == PUBLISHED;
-        }
+    
+    // Enums
+    public enum DeckType {
+        STANDARD, EXTENDED, UNLIMITED, CUSTOM
     }
 }

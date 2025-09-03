@@ -32,10 +32,13 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         
+        <!-- Spring Security disabled for Phase 1 testing -->
+        <!--
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+        -->
         
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -94,11 +97,7 @@
         </dependency>
         
         <!-- Utilities -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
+        <!-- Lombok Removed - 2025-01-03: Complete removal due to Docker build issues -->
         
         <!-- Test -->
         <dependency>
@@ -144,12 +143,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
+                    <!-- Lombok dependency removed -->
                 </configuration>
             </plugin>
             <plugin>

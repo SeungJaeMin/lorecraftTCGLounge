@@ -1,150 +1,94 @@
 package com.lorecraft.tcglounge.domain.card.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "card")
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "card_type")
+@Table(name = "cards")
 @EntityListeners(AuditingEntityListener.class)
-@Getter
-@Setter
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "card_type")
 public class Card {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "card_id")
     private Long cardId;
-
-    @Column(name = "card_name", nullable = false, length = 100)
+    
+    @Column(name = "card_name", nullable = false)
     private String cardName;
-
-    @Column(name = "card_img", length = 255)
+    
+    @Column(name = "card_img")
     private String cardImg;
-
+    
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
-
+    
     @Enumerated(EnumType.STRING)
     @Column(name = "card_color")
     private CardColor cardColor;
-
-    // burst_number 필드 제거 - 각 하위 엔티티에서 관리
-
-    @Column(name = "rarity", nullable = false)
+    
     @Enumerated(EnumType.STRING)
+    @Column(name = "rarity")
     private CardRarity rarity;
-
+    
     @Column(name = "cost")
     private Integer cost;
-
-    // 간소화된 필드 구조 - ERD V0.3
-
-    @Column(name = "card_number", length = 20)
+    
+    @Column(name = "card_number")
     private String cardNumber;
-
-    @Column(name = "card_type", insertable = false, updatable = false)
-    private String cardType;
-
+    
     @CreatedDate
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
-
+    
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    // 연관관계
-    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<DeckCard> deckCards = new ArrayList<>();
-
-    // 비즈니스 메서드 - ERD V0.3 간소화
-
-    public boolean isLeader() {
-        return this instanceof Leader;
+    
+    public Card() {}
+    
+    public Card(String cardName, CardColor cardColor, CardRarity rarity, Integer cost) {
+        this.cardName = cardName;
+        this.cardColor = cardColor;
+        this.rarity = rarity;
+        this.cost = cost;
     }
-
-    public boolean isUnit() {
-        return this instanceof Unit;
-    }
-
-    public boolean isItem() {
-        return this instanceof Item;
-    }
-
-    public boolean isField() {
-        return this instanceof Field;
-    }
-
-    public boolean isSpell() {
-        return this instanceof Spell;
-    }
-
-    public String getFullCardNumber() {
-        return cardNumber;
-    }
-
-    public void addToDeck(DeckCard deckCard) {
-        deckCards.add(deckCard);
-        deckCard.setCard(this);
-    }
-
-    public void removeFromDeck(DeckCard deckCard) {
-        deckCards.remove(deckCard);
-        deckCard.setCard(null);
-    }
-
-    // Enum 정의
+    
+    // Getters
+    public Long getCardId() { return cardId; }
+    public String getCardName() { return cardName; }
+    public String getCardImg() { return cardImg; }
+    public String getDescription() { return description; }
+    public CardColor getCardColor() { return cardColor; }
+    public CardRarity getRarity() { return rarity; }
+    public Integer getCost() { return cost; }
+    public String getCardNumber() { return cardNumber; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    
+    // Setters
+    public void setCardId(Long cardId) { this.cardId = cardId; }
+    public void setCardName(String cardName) { this.cardName = cardName; }
+    public void setCardImg(String cardImg) { this.cardImg = cardImg; }
+    public void setDescription(String description) { this.description = description; }
+    public void setCardColor(CardColor cardColor) { this.cardColor = cardColor; }
+    public void setRarity(CardRarity rarity) { this.rarity = rarity; }
+    public void setCost(Integer cost) { this.cost = cost; }
+    public void setCardNumber(String cardNumber) { this.cardNumber = cardNumber; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    
+    // Enums
     public enum CardColor {
-        RED("적색"),
-        BLUE("청색"), 
-        GREEN("녹색"),
-        YELLOW("황색"),
-        BLACK("흑색"),
-        COLORLESS("무색");
-
-        private final String koreanName;
-
-        CardColor(String koreanName) {
-            this.koreanName = koreanName;
-        }
-
-        public String getKoreanName() {
-            return koreanName;
-        }
+        RED, BLUE, GREEN, YELLOW, BLACK, COLORLESS
     }
-
+    
     public enum CardRarity {
-        COMMON("커먼"),
-        RARE("레어"),
-        SUPER_RARE("슈퍼레어"),
-        ULTRA_RARE("울트라레어"),
-        SECRET_RARE("시크릿레어"),
-        LEGENDARY("레전더리");
-
-        private final String koreanName;
-
-        CardRarity(String koreanName) {
-            this.koreanName = koreanName;
-        }
-
-        public String getKoreanName() {
-            return koreanName;
-        }
+        COMMON, RARE, SUPER_RARE, ULTRA_RARE, SECRET_RARE, LEGENDARY
     }
 }

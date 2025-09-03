@@ -12,10 +12,10 @@ spring:
       on-profile: dev
   
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/tcg_lounge_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
-    username: ${SPRING_DATASOURCE_USERNAME:tcg_user}
-    password: ${SPRING_DATASOURCE_PASSWORD:tcg_password}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:testdb}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    driver-class-name: org.h2.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
@@ -27,7 +27,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.H2Dialect
         
   # Redis disabled for development
   # data:
@@ -80,7 +80,7 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.H2Dialect
         
   data:
     redis:
