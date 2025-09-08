@@ -1,7 +1,7 @@
-package com.lorecraft.tcglounge.domain.card.service;
+package com.lorecraft.tcglounge.service;
 
-import com.lorecraft.tcglounge.domain.card.entity.Card;
-import com.lorecraft.tcglounge.domain.card.repository.CardRepository;
+import com.lorecraft.tcglounge.entity.Card;
+import com.lorecraft.tcglounge.repository.CardRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.lorecraft.tcglounge.controller;
 
-import com.lorecraft.tcglounge.domain.user.entity.User;
-import com.lorecraft.tcglounge.domain.user.service.UserService;
+import com.lorecraft.tcglounge.entity.User;
+import com.lorecraft.tcglounge.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

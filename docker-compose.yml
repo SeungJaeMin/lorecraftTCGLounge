@@ -12,7 +12,7 @@ services:
       MYSQL_USER: tcg_user
       MYSQL_PASSWORD: tcg_password
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./backend/src/main/resources/db/init:/docker-entrypoint-initdb.d
@@ -50,7 +50,7 @@ services:
     container_name: tcg-backend
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8081:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/tcg_lounge_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true

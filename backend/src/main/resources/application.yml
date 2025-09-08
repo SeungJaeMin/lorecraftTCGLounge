@@ -12,10 +12,10 @@ spring:
       on-profile: dev
   
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:testdb}
-    username: ${SPRING_DATASOURCE_USERNAME:sa}
-    password: ${SPRING_DATASOURCE_PASSWORD:password}
-    driver-class-name: org.h2.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/tcg_lounge_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:tcg_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:tcg_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
@@ -27,7 +27,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
         
   # Redis disabled for development
   # data:
@@ -43,7 +43,7 @@ spring:
     time-zone: Asia/Seoul
 
 server:
-  port: 8080
+  port: 8090
   servlet:
     context-path: /api
 
@@ -57,6 +57,59 @@ logging:
 jwt:
   secret: lorecraft-tcg-lounge-jwt-secret-key-for-development-very-long-secret
   expiration: 86400 # 24 hours
+
+---
+# Docker Profile  
+spring:
+  config:
+    activate:
+      on-profile: docker
+      
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/tcg_lounge_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:tcg_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:tcg_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:redis}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: Asia/Seoul
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+logging:
+  level:
+    com.lorecraft.tcglounge: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+jwt:
+  secret: ${JWT_SECRET:lorecraft-tcg-lounge-jwt-secret-key-for-development-very-long-secret}
+  expiration: ${JWT_EXPIRATION:86400}
 
 ---
 # Production Profile
@@ -76,11 +129,12 @@ spring:
       
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: false
+      ddl-auto: create-drop
+    show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
         
   data:
     redis:

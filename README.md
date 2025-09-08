@@ -26,7 +26,14 @@ Lorecraft TCG 라운지는 다음 기능을 지원하는 웹/모바일 통합 �
 ```
 Workspace_lorecraft_TCG/
 ├── backend/              # Spring Boot 백엔드 애플리케이션
-│   ├── src/
+│   ├── src/main/java/com/lorecraft/tcglounge/
+│   │   ├── controller/   # REST API 컨트롤러
+│   │   ├── service/      # 비즈니스 로직
+│   │   ├── repository/   # 데이터 접근 계층
+│   │   ├── entity/       # JPA 엔티티
+│   │   ├── dto/          # 데이터 전송 객체
+│   │   ├── config/       # 설정 클래스
+│   │   └── exception/    # 예외 처리
 │   ├── pom.xml
 │   └── Dockerfile
 ├── frontend/             # React 프론트엔드 애플리케이션
@@ -38,13 +45,20 @@ Workspace_lorecraft_TCG/
 └── README.md
 ```
 
-## 📦 도메인 구조
+## 🏛️ 백엔드 아키텍처
 
-- **Card Domain**: 카드 검색, 덱 관리
-- **Competition Domain**: 대회 운영, 경기 추적
-- **User Domain**: 인증, 프로필, 랭킹
-- **Store Domain**: 점포 관리, 주문
-- **Content Domain**: CMS, 이벤트, 문서 관리
+### 레이어드 아키텍처 패턴
+- **Controller Layer**: REST API 엔드포인트, HTTP 요청/응답 처리
+- **Service Layer**: 비즈니스 로직, 트랜잭션 관리
+- **Repository Layer**: 데이터 접근, JPA 쿼리 메서드
+- **Entity Layer**: JPA 엔티티, 데이터베이스 스키마 매핑
+
+### 기능 도메인
+- **Card Management**: 카드 검색, 덱 관리
+- **Competition Management**: 대회 운영, 경기 추적  
+- **User Management**: 인증, 프로필, 랭킹
+- **Store Management**: 점포 관리, 주문
+- **Content Management**: CMS, 이벤트, 문서 관리
 
 ## 🚀 시작하기
 

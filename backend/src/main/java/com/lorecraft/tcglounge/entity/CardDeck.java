@@ -1,6 +1,5 @@
-package com.lorecraft.tcglounge.domain.card.entity;
+package com.lorecraft.tcglounge.entity;
 
-import com.lorecraft.tcglounge.domain.user.entity.Gamer;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;

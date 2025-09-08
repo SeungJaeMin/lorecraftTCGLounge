@@ -1,6 +1,6 @@
-package com.lorecraft.tcglounge.domain.user.repository;
+package com.lorecraft.tcglounge.repository;
 
-import com.lorecraft.tcglounge.domain.user.entity.User;
+import com.lorecraft.tcglounge.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

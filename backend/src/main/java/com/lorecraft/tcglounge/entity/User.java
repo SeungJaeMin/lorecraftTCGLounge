@@ -1,4 +1,4 @@
-package com.lorecraft.tcglounge.domain.user.entity;
+package com.lorecraft.tcglounge.entity;
 
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;

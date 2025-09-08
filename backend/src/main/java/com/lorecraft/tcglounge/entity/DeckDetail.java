@@ -1,4 +1,4 @@
-package com.lorecraft.tcglounge.domain.card.entity;
+package com.lorecraft.tcglounge.entity;
 
 import jakarta.persistence.*;
 

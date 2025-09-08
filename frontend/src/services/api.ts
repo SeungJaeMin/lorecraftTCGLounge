@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api/api';
+const API_BASE_URL = 'http://localhost:8090/api/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -71,13 +71,13 @@ export interface CardCreateRequest {
 export const cardApi = {
   // 모든 카드 조회
   getAllCards: async (): Promise<Card[]> => {
-    const response = await api.get('/v1/cards');
+    const response = await api.get('/cards');
     return response.data;
   },
 
   // 카드명으로 검색
   searchCardsByName: async (name: string): Promise<Card[]> => {
-    const response = await api.get('/v1/cards/search', {
+    const response = await api.get('/cards/search', {
       params: { name }
     });
     return response.data;
@@ -85,19 +85,19 @@ export const cardApi = {
 
   // 특정 카드 조회
   getCard: async (id: number): Promise<Card> => {
-    const response = await api.get(`/v1/cards/${id}`);
+    const response = await api.get(`/cards/${id}`);
     return response.data;
   },
 
   // 새 카드 생성
   createCard: async (cardData: CardCreateRequest): Promise<{success: boolean, message: string, cardId?: number}> => {
-    const response = await api.post('/v1/cards', cardData);
+    const response = await api.post('/cards', cardData);
     return response.data;
   },
 
   // 샘플 데이터 초기화
   initSampleData: async (): Promise<{success: boolean, message: string, cardsCreated?: number}> => {
-    const response = await api.post('/v1/cards/init-sample-data');
+    const response = await api.post('/cards/init-sample-data');
     return response.data;
   },
 };

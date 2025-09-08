@@ -1,8 +1,8 @@
-package com.lorecraft.tcglounge.domain.user.service;
+package com.lorecraft.tcglounge.service;
 
-import com.lorecraft.tcglounge.domain.user.entity.Gamer;
-import com.lorecraft.tcglounge.domain.user.entity.User;
-import com.lorecraft.tcglounge.domain.user.repository.UserRepository;
+import com.lorecraft.tcglounge.entity.Gamer;
+import com.lorecraft.tcglounge.entity.User;
+import com.lorecraft.tcglounge.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

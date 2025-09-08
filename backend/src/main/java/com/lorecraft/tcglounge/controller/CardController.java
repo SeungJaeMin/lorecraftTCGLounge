@@ -1,9 +1,14 @@
 package com.lorecraft.tcglounge.controller;
 
-import com.lorecraft.tcglounge.domain.card.entity.Card;
-import com.lorecraft.tcglounge.domain.card.service.CardService;
+import com.lorecraft.tcglounge.entity.Card;
+import com.lorecraft.tcglounge.entity.CardImage;
+import com.lorecraft.tcglounge.service.CardService;
+import com.lorecraft.tcglounge.service.CardImageService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,9 +20,11 @@ import java.util.Map;
 public class CardController {
 
     private final CardService cardService;
+    private final CardImageService cardImageService;
 
-    public CardController(CardService cardService) {
+    public CardController(CardService cardService, CardImageService cardImageService) {
         this.cardService = cardService;
+        this.cardImageService = cardImageService;
     }
 
     @GetMapping
@@ -84,6 +91,87 @@ public class CardController {
             response.put("success", true);
             response.put("message", "Sample data initialized successfully");
             response.put("cardsCreated", 8);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // 이미지 업로드
+    @PostMapping("/{cardId}/images")
+    public ResponseEntity<Map<String, Object>> uploadImage(
+            @PathVariable Long cardId,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "category", defaultValue = "main") String category) {
+        try {
+            CardImage cardImage = cardImageService.uploadImage(cardId, file, category);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Image uploaded successfully");
+            response.put("imageId", cardImage.getImageId());
+            response.put("imageName", cardImage.getImageName());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // 이미지 다운로드
+    @GetMapping("/images/{imageId}")
+    public ResponseEntity<byte[]> downloadImage(@PathVariable Long imageId) {
+        try {
+            byte[] imageData = cardImageService.getImageData(imageId);
+            
+            // 이미지 메타데이터 가져오기
+            CardImage cardImage = cardImageService.getImagesByCardId(1L).stream()
+                .filter(img -> img.getImageId().equals(imageId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(cardImage.getImageType()));
+            headers.setContentLength(imageData.length);
+            headers.set("Content-Disposition", "inline; filename=\"" + cardImage.getImageName() + "\"");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(imageData);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // 카드의 모든 이미지 조회
+    @GetMapping("/{cardId}/images")
+    public ResponseEntity<List<CardImage>> getCardImages(@PathVariable Long cardId) {
+        try {
+            List<CardImage> images = cardImageService.getImagesByCardId(cardId);
+            return ResponseEntity.ok(images);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 이미지 삭제
+    @DeleteMapping("/images/{imageId}")
+    public ResponseEntity<Map<String, Object>> deleteImage(@PathVariable Long imageId) {
+        try {
+            cardImageService.deleteImage(imageId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Image deleted successfully");
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
