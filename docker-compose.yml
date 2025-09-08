@@ -32,6 +32,8 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+      - ./redis/redis-docker.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
     networks:
       - tcg-network
     healthcheck:

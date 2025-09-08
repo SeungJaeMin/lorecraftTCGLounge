@@ -66,4 +66,32 @@ public class CardController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
+    @PostMapping("/init-sample-data")
+    public ResponseEntity<Map<String, Object>> initSampleData() {
+        try {
+            // 샘플 카드 데이터 생성
+            cardService.createCard("화염 드래곤", Card.CardColor.RED, Card.CardRarity.LEGENDARY, 8);
+            cardService.createCard("빙결의 마법사", Card.CardColor.BLUE, Card.CardRarity.RARE, 5);
+            cardService.createCard("번개 폭풍", Card.CardColor.YELLOW, Card.CardRarity.COMMON, 3);
+            cardService.createCard("치유의 성수", Card.CardColor.COLORLESS, Card.CardRarity.COMMON, 2);
+            cardService.createCard("어둠의 검사", Card.CardColor.BLACK, Card.CardRarity.RARE, 4);
+            cardService.createCard("자연의 수호자", Card.CardColor.GREEN, Card.CardRarity.SUPER_RARE, 6);
+            cardService.createCard("신성한 기사", Card.CardColor.COLORLESS, Card.CardRarity.ULTRA_RARE, 7);
+            cardService.createCard("고대의 정령", Card.CardColor.GREEN, Card.CardRarity.SECRET_RARE, 9);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Sample data initialized successfully");
+            response.put("cardsCreated", 8);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 }

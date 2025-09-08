@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:8080/api/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -41,60 +41,63 @@ api.interceptors.response.use(
   }
 );
 
-// 카드 관련 API
+// 카드 관련 API - 백엔드 Card 엔티티와 일치하도록 수정
 export interface Card {
-  id: number;
-  name: string;
-  type: string;
-  rarity: string;
-  color: string;
+  cardId: number;
+  cardName: string;
+  cardImg?: string;
+  description?: string;
+  cardColor: 'RED' | 'BLUE' | 'GREEN' | 'YELLOW' | 'BLACK' | 'COLORLESS';
+  rarity: 'COMMON' | 'RARE' | 'SUPER_RARE' | 'ULTRA_RARE' | 'SECRET_RARE' | 'LEGENDARY';
   cost?: number;
-  attack?: number;
-  defense?: number;
-  description: string;
-  imageUrl: string;
-  setCode: string;
-  cardNumber: string;
+  cardNumber?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CardSearchRequest {
-  query?: string;
-  type?: string;
+  name?: string;
+  cardColor?: string;
   rarity?: string;
-  color?: string;
 }
 
-export interface PageResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
+export interface CardCreateRequest {
+  cardName: string;
+  cardColor: 'RED' | 'BLUE' | 'GREEN' | 'YELLOW' | 'BLACK' | 'COLORLESS';
+  rarity: 'COMMON' | 'RARE' | 'SUPER_RARE' | 'ULTRA_RARE' | 'SECRET_RARE' | 'LEGENDARY';
+  cost?: number;
 }
 
 export const cardApi = {
-  searchCards: async (
-    params: CardSearchRequest,
-    page: number = 0,
-    size: number = 20
-  ): Promise<PageResponse<Card>> => {
-    const response = await api.get('/cards/search', {
-      params: {
-        ...params,
-        page,
-        size,
-      },
+  // 모든 카드 조회
+  getAllCards: async (): Promise<Card[]> => {
+    const response = await api.get('/v1/cards');
+    return response.data;
+  },
+
+  // 카드명으로 검색
+  searchCardsByName: async (name: string): Promise<Card[]> => {
+    const response = await api.get('/v1/cards/search', {
+      params: { name }
     });
     return response.data;
   },
 
+  // 특정 카드 조회
   getCard: async (id: number): Promise<Card> => {
-    const response = await api.get(`/cards/${id}`);
+    const response = await api.get(`/v1/cards/${id}`);
     return response.data;
   },
 
-  getFeaturedCards: async (): Promise<Card[]> => {
-    const response = await api.get('/cards/featured');
+  // 새 카드 생성
+  createCard: async (cardData: CardCreateRequest): Promise<{success: boolean, message: string, cardId?: number}> => {
+    const response = await api.post('/v1/cards', cardData);
+    return response.data;
+  },
+
+  // 샘플 데이터 초기화
+  initSampleData: async (): Promise<{success: boolean, message: string, cardsCreated?: number}> => {
+    const response = await api.post('/v1/cards/init-sample-data');
     return response.data;
   },
 };
