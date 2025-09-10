@@ -96,6 +96,14 @@ public class CardImageService {
         return cardImageRepository.findByCardCardId(cardId);
     }
     
+    public CardImage getImageById(Long imageId) {
+        Optional<CardImage> imageOpt = cardImageRepository.findById(imageId);
+        if (!imageOpt.isPresent()) {
+            throw new RuntimeException("Image not found");
+        }
+        return imageOpt.get();
+    }
+    
     public List<CardImage> getImagesByCardIdAndCategory(Long cardId, String category) {
         return cardImageRepository.findByCardCardIdAndImageCategory(cardId, category);
     }

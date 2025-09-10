@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MainPage from './pages/MainPage';
+import LoginPage from './pages/LoginPage';
 import GamerLoungePage from './pages/GamerLoungePage';
 import StoreOwnerLoungePage from './pages/StoreOwnerLoungePage';
 import AdminPage from './pages/AdminPage';
@@ -13,6 +14,8 @@ import CardSearchPage from './pages/CardSearchPage';
 import EventPage from './pages/EventPage';
 import TournamentPage from './pages/TournamentPage';
 import RankingPage from './pages/RankingPage';
+import ImageUploadTest from './pages/ImageUploadTest';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const theme = createTheme({
   palette: {
@@ -53,10 +56,9 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
+            {/* 공개 페이지 */}
             <Route path="/" element={<MainPage />} />
-            <Route path="/gamer-lounge" element={<GamerLoungePage />} />
-            <Route path="/store-owner-lounge" element={<StoreOwnerLoungePage />} />
-            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route path="/news" element={<NewsPage />} />
             <Route path="/products" element={<ProductInfoPage />} />
             <Route path="/how-to-play" element={<HowToPlayPage />} />
@@ -64,6 +66,42 @@ function App() {
             <Route path="/events" element={<EventPage />} />
             <Route path="/tournaments" element={<TournamentPage />} />
             <Route path="/ranking" element={<RankingPage />} />
+            
+            {/* 보호된 페이지 - 로그인 필요 */}
+            <Route 
+              path="/gamer-lounge" 
+              element={
+                <ProtectedRoute requiredUserType="GAMER">
+                  <GamerLoungePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/store-owner-lounge" 
+              element={
+                <ProtectedRoute requiredUserType="STORE_OWNER">
+                  <StoreOwnerLoungePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute requiredUserType="ADMIN">
+                  <AdminPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* 개발/테스트 페이지 */}
+            <Route 
+              path="/image-upload-test" 
+              element={
+                <ProtectedRoute>
+                  <ImageUploadTest />
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
         </div>
       </Router>

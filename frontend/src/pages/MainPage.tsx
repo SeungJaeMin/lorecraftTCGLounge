@@ -32,7 +32,7 @@ import {
   Apple
 } from '@mui/icons-material';
 import Navigation from '../components/Navigation';
-import authService from '../services/authService';
+import { authAPI } from '../services/api';
 
 const MainPage: React.FC = () => {
   const navigate = useNavigate();
@@ -80,18 +80,23 @@ const MainPage: React.FC = () => {
     setLoginError('');
 
     try {
-      const response = await authService.login({
-        userid: username,
-        password: password
-      });
+      console.log('MainPage 로그인 시도:', username, password);
+      const response = await authAPI.login(username, password);
+      console.log('MainPage 로그인 응답:', response);
 
-      if (response.success) {
+      if (response.data.success) {
+        // 토큰 저장 - 새로운 방식
+        localStorage.setItem('tcg_lounge_token', response.data.data.token);
+        localStorage.setItem('tcg_lounge_user', JSON.stringify(response.data.data));
+        localStorage.setItem('userType', response.data.data.userType);
+        localStorage.setItem('username', response.data.data.username);
+        
         setLoginModalOpen(false);
         setUsername('');
         setPassword('');
         
         // 사용자 유형에 따라 리다이렉트
-        const userType = response.data.userType;
+        const userType = response.data.data.userType;
         switch (userType) {
           case 'GAMER':
             navigate('/gamer-lounge');
@@ -103,11 +108,14 @@ const MainPage: React.FC = () => {
             navigate('/admin');
             break;
           default:
-            navigate('/dashboard');
+            navigate('/store-owner-lounge');
         }
+      } else {
+        setLoginError(response.data.message || '로그인에 실패했습니다.');
       }
     } catch (error: any) {
-      setLoginError(error.message || '로그인에 실패했습니다.');
+      console.error('MainPage 로그인 오류:', error);
+      setLoginError(error.response?.data?.message || '로그인에 실패했습니다.');
     } finally {
       setIsLogging(false);
     }

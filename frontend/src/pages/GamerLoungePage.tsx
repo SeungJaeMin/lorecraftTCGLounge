@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Typography,
@@ -18,7 +18,8 @@ import {
   Paper,
   Tabs,
   Tab,
-  Badge
+  Badge,
+  CircularProgress
 } from '@mui/material';
 import {
   Dashboard,
@@ -35,55 +36,117 @@ import {
   LocalFireDepartment
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { gamerAPI, authAPI } from '../services/api';
 
 const GamerLoungePage: React.FC = () => {
   const navigate = useNavigate();
   const [tabValue, setTabValue] = React.useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  // 모든 useState 훅을 컴포너트 상단에 선언
+  const [userData, setUserData] = useState({
+    username: '',
+    nickname: '',
+    rank: '',
+    winRate: 0,
+    totalGames: 0,
+    totalWins: 0,
+    totalLosses: 0,
+    currentRating: 0,
+    usablePoint: 0
+  });
+  const [myDecks, setMyDecks] = useState<any[]>([]);
+  const [recentMatches, setRecentMatches] = useState<any[]>([]);
+  const [upcomingTournaments, setUpcomingTournaments] = useState<any[]>([]);
 
-  const handleLogout = () => {
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userType');
+      localStorage.removeItem('username');
+      navigate('/login');
+    }
   };
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const response = await gamerAPI.getDashboard();
+        
+        if (response.data.success) {
+          const data = response.data.data;
+          
+          // 프로필 데이터 설정
+          setUserData({
+            username: data.profile.username || '',
+            nickname: data.profile.nickname || '게이머',
+            rank: data.profile.rank || 'BRONZE',
+            winRate: Math.round(data.profile.winRate || 0),
+            totalGames: data.profile.totalGames || 0,
+            totalWins: data.profile.totalWins || 0,
+            totalLosses: data.profile.totalLosses || 0,
+            currentRating: data.profile.currentRating || 0,
+            usablePoint: data.profile.usablePoint || 0
+          });
+          
+          // 덱, 경기, 대회 데이터 설정
+          setMyDecks(data.myDecks || []);
+          setRecentMatches(data.recentMatches || []);
+          setUpcomingTournaments(data.upcomingTournaments || []);
+        } else {
+          setError(response.data.message || '데이터를 불러오는데 실패했습니다.');
+        }
+      } catch (error: any) {
+        console.error('Dashboard data fetch error:', error);
+        setError('대시보드 데이터 로드 중 오류가 발생했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh'
+      }}>
+        <CircularProgress size={50} />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh',
+        flexDirection: 'column',
+        gap: 2
+      }}>
+        <Typography variant="h6" color="error">{error}</Typography>
+        <Button variant="contained" onClick={() => window.location.reload()}>
+          다시 시도
+        </Button>
+      </Box>
+    );
+  }
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
-
-  // 샘플 유저 데이터
-  const userData = {
-    username: 'test',
-    nickname: '에스텔라 마스터',
-    level: 42,
-    rank: 'Diamond',
-    winRate: 68.5,
-    totalGames: 245,
-    wins: 168,
-    losses: 77,
-    currentRating: 2450,
-    nextLevelExp: 75
-  };
-
-  // 샘플 덱 데이터
-  const myDecks = [
-    { id: 1, name: '드래곤 러시', winRate: 72, games: 50, lastPlayed: '2시간 전' },
-    { id: 2, name: '컨트롤 마법사', winRate: 65, games: 35, lastPlayed: '1일 전' },
-    { id: 3, name: '어그로 전사', winRate: 58, games: 28, lastPlayed: '3일 전' }
-  ];
-
-  // 샘플 대회 데이터
-  const upcomingTournaments = [
-    { id: 1, name: '주간 챔피언십', date: '2024-08-25', prize: '100만원', participants: '128/256' },
-    { id: 2, name: '초보자 리그', date: '2024-08-26', prize: '30만원', participants: '45/64' },
-    { id: 3, name: '마스터즈 토너먼트', date: '2024-08-28', prize: '500만원', participants: '256/256' }
-  ];
-
-  // 최근 경기 결과
-  const recentMatches = [
-    { id: 1, opponent: '다크나이트', result: 'WIN', deck: '드래곤 러시', ratingChange: '+25' },
-    { id: 2, opponent: '매직유저', result: 'LOSS', deck: '컨트롤 마법사', ratingChange: '-18' },
-    { id: 3, opponent: '프로게이머', result: 'WIN', deck: '드래곤 러시', ratingChange: '+30' },
-    { id: 4, opponent: '초보자123', result: 'WIN', deck: '어그로 전사', ratingChange: '+15' },
-    { id: 5, opponent: '마스터', result: 'LOSS', deck: '컨트롤 마법사', ratingChange: '-22' }
-  ];
 
   return (
     <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>
@@ -154,7 +217,7 @@ const GamerLoungePage: React.FC = () => {
                       {userData.nickname}
                     </Typography>
                     <Chip 
-                      label={`Level ${userData.level}`} 
+                      label={userData.rank} 
                       sx={{ 
                         bgcolor: 'rgba(255,255,255,0.2)', 
                         color: 'white',
@@ -165,23 +228,10 @@ const GamerLoungePage: React.FC = () => {
                 </Box>
                 <Box sx={{ mt: 3 }}>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                    다음 레벨까지
+                    포인트
                   </Typography>
-                  <LinearProgress 
-                    variant="determinate" 
-                    value={userData.nextLevelExp} 
-                    sx={{ 
-                      mt: 1, 
-                      height: 8, 
-                      borderRadius: 4,
-                      bgcolor: 'rgba(255,255,255,0.2)',
-                      '& .MuiLinearProgress-bar': {
-                        bgcolor: '#f4c87a'
-                      }
-                    }}
-                  />
-                  <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                    {userData.nextLevelExp}% 완료
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#f4c87a', mt: 1 }}>
+                    {userData.usablePoint?.toLocaleString() || 0} P
                   </Typography>
                 </Box>
               </CardContent>
@@ -197,7 +247,7 @@ const GamerLoungePage: React.FC = () => {
                 <Box sx={{ display: 'flex', justifyContent: 'space-around', mb: 2 }}>
                   <Box sx={{ textAlign: 'center' }}>
                     <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#4caf50' }}>
-                      {userData.wins}
+                      {userData.totalWins}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       승리
@@ -205,7 +255,7 @@ const GamerLoungePage: React.FC = () => {
                   </Box>
                   <Box sx={{ textAlign: 'center' }}>
                     <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#f44336' }}>
-                      {userData.losses}
+                      {userData.totalLosses}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       패배

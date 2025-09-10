@@ -197,13 +197,8 @@ const AdminPage: React.FC = () => {
     { id: 4, type: 'ERROR', message: '결제 시스템 오류 보고', time: '2시간 전', severity: 'HIGH' }
   ];
 
-  // 콘텐츠 관리
-  const contents = [
-    { id: 1, title: '8월 업데이트 공지', type: 'ANNOUNCEMENT', author: 'admin', date: '2024-08-20', views: 5234, status: 'PUBLISHED' },
-    { id: 2, title: '신규 카드팩 출시', type: 'NEWS', author: 'admin', date: '2024-08-19', views: 8921, status: 'PUBLISHED' },
-    { id: 3, title: '룰북 v2.0', type: 'RULEBOOK', author: 'admin', date: '2024-08-18', views: 2156, status: 'DRAFT' },
-    { id: 4, title: '이벤트 안내', type: 'EVENT', author: 'admin', date: '2024-08-17', views: 3478, status: 'SCHEDULED' }
-  ];
+  // TODO: API에서 컨텐츠 데이터 가져오기
+  const contents: any[] = [];
 
   return (
     <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>

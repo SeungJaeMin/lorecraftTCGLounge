@@ -68,99 +68,33 @@ const StoreOwnerLoungePage: React.FC = () => {
     setTabValue(newValue);
   };
 
-  // 샘플 점주 데이터
+  // TODO: API에서 점주 데이터 가져오기
   const storeData = {
-    storeName: '에스텔라 카드샵 강남점',
-    ownerName: 'test2',
-    location: '서울 강남구',
-    monthlyRevenue: 8500000,
-    monthlyOrders: 124,
-    activeEvents: 3,
-    totalPlayers: 456,
-    todayCheckIns: 28,
-    pendingOrders: 5
+    storeName: '',
+    ownerName: '',
+    location: '',
+    monthlyRevenue: 0,
+    monthlyOrders: 0,
+    activeEvents: 0,
+    totalPlayers: 0,
+    todayCheckIns: 0,
+    pendingOrders: 0
   };
 
-  // 오늘의 대회
-  const todayTournaments = [
-    { 
-      id: 1, 
-      name: '주간 스탠다드 대회', 
-      time: '14:00', 
-      participants: '12/16', 
-      status: 'IN_PROGRESS',
-      prizePool: '30만원'
-    },
-    { 
-      id: 2, 
-      name: '초보자 친선 매치', 
-      time: '19:00', 
-      participants: '8/16', 
-      status: 'SCHEDULED',
-      prizePool: '10만원'
-    }
-  ];
+  // TODO: API에서 오늘의 대회 데이터 가져오기
+  const todayTournaments: any[] = [];
 
-  // 체크인 대기 목록
-  const checkInQueue = [
-    { id: 1, playerName: '드래곤마스터', tournament: '주간 스탠다드 대회', time: '13:45', status: 'WAITING' },
-    { id: 2, playerName: '카드킹', tournament: '주간 스탠다드 대회', time: '13:48', status: 'WAITING' },
-    { id: 3, playerName: '매직유저', tournament: '초보자 친선 매치', time: '18:30', status: 'WAITING' },
-    { id: 4, playerName: '프로게이머', tournament: '초보자 친선 매치', time: '18:45', status: 'WAITING' }
-  ];
+  // TODO: API에서 체크인 대기 목록 가져오기
+  const checkInQueue: any[] = [];
 
-  // 최근 주문
-  const recentOrders = [
-    { 
-      id: 'ORD-001', 
-      product: '신규 부스터팩 박스 (24팩)', 
-      quantity: 10, 
-      total: 480000, 
-      status: 'PENDING',
-      orderDate: '2024-08-20'
-    },
-    { 
-      id: 'ORD-002', 
-      product: '스타터 덱 세트', 
-      quantity: 20, 
-      total: 200000, 
-      status: 'SHIPPED',
-      orderDate: '2024-08-19'
-    },
-    { 
-      id: 'ORD-003', 
-      product: '프리미엄 슬리브', 
-      quantity: 50, 
-      total: 150000, 
-      status: 'DELIVERED',
-      orderDate: '2024-08-18'
-    },
-    { 
-      id: 'ORD-004', 
-      product: '플레이매트', 
-      quantity: 15, 
-      total: 225000, 
-      status: 'PENDING',
-      orderDate: '2024-08-20'
-    }
-  ];
+  // TODO: API에서 최근 주문 데이터 가져오기
+  const recentOrders: any[] = [];
 
-  // 재고 현황
-  const inventory = [
-    { item: '부스터팩', current: 245, minimum: 100, status: 'GOOD' },
-    { item: '스타터 덱', current: 32, minimum: 50, status: 'LOW' },
-    { item: '프리미엄 슬리브', current: 128, minimum: 100, status: 'GOOD' },
-    { item: '플레이매트', current: 18, minimum: 30, status: 'LOW' },
-    { item: '덱박스', current: 65, minimum: 50, status: 'GOOD' }
-  ];
+  // TODO: API에서 재고 현황 가져오기
+  const inventory: any[] = [];
 
-  // 이번 달 대회 일정
-  const monthlyTournaments = [
-    { date: '2024-08-25', name: '월간 챔피언십', type: '스탠다드', maxPlayers: 32, registered: 28 },
-    { date: '2024-08-26', name: '초보자 리그', type: '리미티드', maxPlayers: 16, registered: 12 },
-    { date: '2024-08-28', name: '프리릴리즈 이벤트', type: '실드', maxPlayers: 64, registered: 45 },
-    { date: '2024-08-30', name: '월말 결산 대회', type: '모던', maxPlayers: 24, registered: 24 }
-  ];
+  // TODO: API에서 이번 달 대회 일정 가져오기
+  const monthlyTournaments: any[] = [];
 
   return (
     <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>

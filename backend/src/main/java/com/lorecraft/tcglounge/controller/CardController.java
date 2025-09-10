@@ -2,6 +2,8 @@ package com.lorecraft.tcglounge.controller;
 
 import com.lorecraft.tcglounge.entity.Card;
 import com.lorecraft.tcglounge.entity.CardImage;
+import com.lorecraft.tcglounge.dto.CardDTO;
+import com.lorecraft.tcglounge.dto.CardImageDTO;
 import com.lorecraft.tcglounge.service.CardService;
 import com.lorecraft.tcglounge.service.CardImageService;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/cards")
+@RequestMapping("/v1/cards")
 @CrossOrigin(origins = "http://localhost:3000")
 public class CardController {
 
@@ -28,22 +30,42 @@ public class CardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Card>> getAllCards() {
+    public ResponseEntity<List<CardDTO>> getAllCards() {
         List<Card> cards = cardService.findAll();
-        return ResponseEntity.ok(cards);
+        List<CardDTO> cardDTOs = cards.stream().map(card -> {
+            List<CardImage> images = cardImageService.getImagesByCardId(card.getCardId());
+            List<CardImageDTO> imageDTOs = images.stream()
+                .map(CardImageDTO::new)
+                .collect(java.util.stream.Collectors.toList());
+            return new CardDTO(card, imageDTOs);
+        }).collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(cardDTOs);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Card> getCard(@PathVariable Long id) {
+    public ResponseEntity<CardDTO> getCard(@PathVariable Long id) {
         return cardService.findById(id)
-            .map(ResponseEntity::ok)
+            .map(card -> {
+                List<CardImage> images = cardImageService.getImagesByCardId(card.getCardId());
+                List<CardImageDTO> imageDTOs = images.stream()
+                    .map(CardImageDTO::new)
+                    .collect(java.util.stream.Collectors.toList());
+                return ResponseEntity.ok(new CardDTO(card, imageDTOs));
+            })
             .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Card>> searchCards(@RequestParam String name) {
+    public ResponseEntity<List<CardDTO>> searchCards(@RequestParam String name) {
         List<Card> cards = cardService.searchByName(name);
-        return ResponseEntity.ok(cards);
+        List<CardDTO> cardDTOs = cards.stream().map(card -> {
+            List<CardImage> images = cardImageService.getImagesByCardId(card.getCardId());
+            List<CardImageDTO> imageDTOs = images.stream()
+                .map(CardImageDTO::new)
+                .collect(java.util.stream.Collectors.toList());
+            return new CardDTO(card, imageDTOs);
+        }).collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(cardDTOs);
     }
 
     @PostMapping
@@ -133,11 +155,8 @@ public class CardController {
         try {
             byte[] imageData = cardImageService.getImageData(imageId);
             
-            // 이미지 메타데이터 가져오기
-            CardImage cardImage = cardImageService.getImagesByCardId(1L).stream()
-                .filter(img -> img.getImageId().equals(imageId))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Image not found"));
+            // 이미지 메타데이터 가져오기 - imageId로 직접 찾기
+            CardImage cardImage = cardImageService.getImageById(imageId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType(cardImage.getImageType()));
@@ -154,10 +173,13 @@ public class CardController {
 
     // 카드의 모든 이미지 조회
     @GetMapping("/{cardId}/images")
-    public ResponseEntity<List<CardImage>> getCardImages(@PathVariable Long cardId) {
+    public ResponseEntity<List<CardImageDTO>> getCardImages(@PathVariable Long cardId) {
         try {
             List<CardImage> images = cardImageService.getImagesByCardId(cardId);
-            return ResponseEntity.ok(images);
+            List<CardImageDTO> imageDTOs = images.stream()
+                .map(CardImageDTO::new)
+                .collect(java.util.stream.Collectors.toList());
+            return ResponseEntity.ok(imageDTOs);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
