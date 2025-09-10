@@ -77,3 +77,15 @@ logs/
 /dist/
 /nbdist/
 /.nb-gradle/
+
+# Test files and local data
+test-*.txt
+test_*.txt
+*.bat
+insert_test_*.sql
+test_upload.html
+backend/images/
+backend/src/main/java/com/lorecraft/tcglounge/service/*.disabled
+
+# Malformed path files (to be cleaned)
+E：*
