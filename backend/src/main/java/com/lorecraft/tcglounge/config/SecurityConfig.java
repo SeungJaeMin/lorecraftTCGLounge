@@ -30,23 +30,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                // 인증 API는 모든 사용자 접근 허용 (context-path 제외)
-                .requestMatchers("/v1/auth/**").permitAll()
-                // 테스트 API 허용
-                .requestMatchers("/test/**").permitAll()
-                .requestMatchers("/v1/test/**").permitAll()
-                // 카드 API 허용 (개발 단계)
-                .requestMatchers("/v1/cards/**").permitAll()
-                // H2 콘솔 허용 (개발 단계)
-                .requestMatchers("/h2-console/**").permitAll()
-                // Swagger UI 허용
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                // 게이머 API 허용 (개발 단계)
-                .requestMatchers("/v1/gamer/**").permitAll()
-                // 나머지는 인증 필요
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
-            .headers(headers -> headers.frameOptions().disable()); // H2 콘솔을 위해
+            .headers(headers -> headers.frameOptions().disable());
 
         return http.build();
     }

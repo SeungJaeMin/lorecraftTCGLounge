@@ -68,11 +68,19 @@ import {
   ReportProblem
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import ArticleManagement from '../components/admin/ArticleManagement';
+import ArticleEditor from '../components/admin/ArticleEditor';
+import TagManagement from '../components/admin/TagManagement';
 
 const AdminPage: React.FC = () => {
   const navigate = useNavigate();
   const [tabValue, setTabValue] = React.useState(0);
   const [selectedUserType, setSelectedUserType] = React.useState('all');
+  
+  // 게시글 관리 상태
+  const [showArticleEditor, setShowArticleEditor] = React.useState(false);
+  const [selectedArticle, setSelectedArticle] = React.useState<any>(null);
+  const [showTagManagement, setShowTagManagement] = React.useState(false);
 
   const handleLogout = () => {
     navigate('/');
@@ -197,8 +205,7 @@ const AdminPage: React.FC = () => {
     { id: 4, type: 'ERROR', message: '결제 시스템 오류 보고', time: '2시간 전', severity: 'HIGH' }
   ];
 
-  // TODO: API에서 컨텐츠 데이터 가져오기
-  const contents: any[] = [];
+  // TODO: 실제 게시글 관리 기능으로 대체됨 - 더미 데이터 제거
 
   return (
     <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>
@@ -384,7 +391,7 @@ const AdminPage: React.FC = () => {
             <Tab label="사용자 관리" />
             <Tab label="대회 승인" />
             <Tab label="점주 승인" />
-            <Tab label="콘텐츠 관리" />
+            <Tab label="뉴스/공지 관리" />
             <Tab label="시스템 알림" />
           </Tabs>
         </Paper>
@@ -611,83 +618,51 @@ const AdminPage: React.FC = () => {
         )}
 
         {tabValue === 3 && (
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                  콘텐츠 관리
-                </Typography>
-                <Button 
-                  startIcon={<Add />}
-                  variant="contained"
-                  sx={{ 
-                    backgroundColor: '#b8191c',
-                    '&:hover': { backgroundColor: '#a01018' }
-                  }}
-                >
-                  새 콘텐츠
-                </Button>
-              </Box>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>제목</TableCell>
-                      <TableCell>유형</TableCell>
-                      <TableCell>작성자</TableCell>
-                      <TableCell>작성일</TableCell>
-                      <TableCell>조회수</TableCell>
-                      <TableCell>상태</TableCell>
-                      <TableCell align="center">액션</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {contents.map((content) => (
-                      <TableRow key={content.id}>
-                        <TableCell>{content.title}</TableCell>
-                        <TableCell>
-                          <Chip 
-                            label={content.type} 
-                            size="small"
-                            variant="outlined"
-                          />
-                        </TableCell>
-                        <TableCell>{content.author}</TableCell>
-                        <TableCell>{content.date}</TableCell>
-                        <TableCell>{content.views.toLocaleString()}</TableCell>
-                        <TableCell>
-                          <Chip 
-                            label={
-                              content.status === 'PUBLISHED' ? '게시됨' :
-                              content.status === 'DRAFT' ? '초안' : '예약'
-                            }
-                            size="small"
-                            color={
-                              content.status === 'PUBLISHED' ? 'success' :
-                              content.status === 'DRAFT' ? 'default' : 'primary'
-                            }
-                          />
-                        </TableCell>
-                        <TableCell align="center">
-                          <IconButton size="small" color="primary">
-                            <Edit />
-                          </IconButton>
-                          {content.status === 'DRAFT' && (
-                            <IconButton size="small" color="success">
-                              <CloudUpload />
-                            </IconButton>
-                          )}
-                          <IconButton size="small" color="error">
-                            <Delete />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
+          <Box>
+            {!showArticleEditor && !showTagManagement && (
+              <ArticleManagement
+                onCreateNew={() => {
+                  setSelectedArticle(null);
+                  setShowArticleEditor(true);
+                }}
+                onEdit={(article) => {
+                  setSelectedArticle(article);
+                  setShowArticleEditor(true);
+                }}
+              />
+            )}
+
+            {showTagManagement && (
+              <TagManagement
+                onClose={() => setShowTagManagement(false)}
+              />
+            )}
+
+            <Box sx={{ mt: 2, display: 'flex', gap: 2, justifyContent: 'center' }}>
+              <Button
+                variant={showTagManagement ? 'contained' : 'outlined'}
+                onClick={() => {
+                  setShowTagManagement(!showTagManagement);
+                  setShowArticleEditor(false);
+                }}
+                startIcon={<Settings />}
+              >
+                태그 관리
+              </Button>
+            </Box>
+
+            <ArticleEditor
+              open={showArticleEditor}
+              article={selectedArticle}
+              onClose={() => {
+                setShowArticleEditor(false);
+                setSelectedArticle(null);
+              }}
+              onSave={(article) => {
+                console.log('Article saved:', article);
+              }}
+            />
+          </Box>
         )}
 
         {tabValue === 4 && (

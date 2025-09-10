@@ -19,9 +19,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('tcg_lounge_token');
+      const storedUserType = localStorage.getItem('userType');
       
       if (!token) {
+        setIsLoading(false);
+        return;
+      }
+
+      // 로그인 직후라면 저장된 userType을 바로 사용
+      if (storedUserType) {
+        setIsAuthenticated(true);
+        setUserType(storedUserType);
         setIsLoading(false);
         return;
       }
@@ -34,13 +43,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           setUserType(response.data.data.userType);
         } else {
           // 토큰이 유효하지 않음
-          localStorage.removeItem('token');
+          localStorage.removeItem('tcg_lounge_token');
           localStorage.removeItem('userType');
           localStorage.removeItem('username');
         }
       } catch (error) {
         // 인증 실패
-        localStorage.removeItem('token');
+        localStorage.removeItem('tcg_lounge_token');
         localStorage.removeItem('userType');
         localStorage.removeItem('username');
       } finally {

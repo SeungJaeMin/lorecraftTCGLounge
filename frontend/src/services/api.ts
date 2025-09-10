@@ -167,4 +167,193 @@ export const gamerAPI = {
   }
 };
 
+// Article 관련 인터페이스
+export interface Article {
+  id: number;
+  title: string;
+  content: string;
+  summary?: string;
+  author: string;
+  authorId?: number;
+  status: 'PUBLIC' | 'PRIVATE';
+  category: 'NEWS' | 'ANNOUNCEMENT' | 'PRODUCT_INFO' | 'UPDATE' | 'EVENT';
+  featured?: boolean;
+  viewsCount?: number;
+  likesCount?: number;
+  thumbnailUrl?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  createdAt: string;
+  updatedAt: string;
+  publishDate?: string;
+  tags?: Tag[];
+}
+
+export interface Tag {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  color?: string;
+  usageCount?: number;
+  createdAt?: string;
+}
+
+export interface ArticleCreateRequest {
+  title: string;
+  content: string;
+  summary?: string;
+  author: string;
+  authorId?: number;
+  status: 'PUBLIC' | 'PRIVATE';
+  category: 'NEWS' | 'ANNOUNCEMENT' | 'PRODUCT_INFO' | 'UPDATE' | 'EVENT';
+  featured?: boolean;
+  thumbnailUrl?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  tagIds?: number[];
+}
+
+export interface TagCreateRequest {
+  name: string;
+  slug?: string;
+  description?: string;
+  color?: string;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  size: number;
+  number: number;
+  sort: {
+    empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+  };
+  numberOfElements: number;
+  first: boolean;
+  empty: boolean;
+}
+
+// Article API
+export const articleApi = {
+  // 게시글 목록 조회 (페이징)
+  getArticles: async (params?: {
+    page?: number;
+    size?: number;
+    status?: string;
+    category?: string;
+    search?: string;
+  }): Promise<PageResponse<Article>> => {
+    const response = await api.get('/articles', { params });
+    return response.data;
+  },
+
+  // 특정 게시글 조회
+  getArticle: async (id: number): Promise<Article> => {
+    const response = await api.get(`/articles/${id}`);
+    return response.data;
+  },
+
+  // 주요 게시글 조회
+  getFeaturedArticles: async (): Promise<Article[]> => {
+    const response = await api.get('/articles/featured');
+    return response.data;
+  },
+
+  // 관리자 - 게시글 생성
+  createArticle: async (data: ArticleCreateRequest): Promise<Article> => {
+    const response = await api.post('/admin/articles', data);
+    return response.data;
+  },
+
+  // 관리자 - 게시글 수정
+  updateArticle: async (id: number, data: Partial<ArticleCreateRequest>): Promise<Article> => {
+    const response = await api.put(`/admin/articles/${id}`, data);
+    return response.data;
+  },
+
+  // 관리자 - 게시글 삭제
+  deleteArticle: async (id: number): Promise<void> => {
+    await api.delete(`/admin/articles/${id}`);
+  },
+
+  // 관리자 - 게시글 발행
+  publishArticle: async (id: number): Promise<Article> => {
+    const response = await api.post(`/admin/articles/${id}/publish`);
+    return response.data;
+  },
+
+  // 관리자 - 게시글 보관
+  archiveArticle: async (id: number): Promise<Article> => {
+    const response = await api.post(`/admin/articles/${id}/archive`);
+    return response.data;
+  },
+
+  // 관리자 - 주요 뉴스 토글
+  toggleFeatured: async (id: number): Promise<Article> => {
+    const response = await api.post(`/admin/articles/${id}/toggle-featured`);
+    return response.data;
+  },
+};
+
+// Tag API
+export const tagApi = {
+  // 태그 목록 조회
+  getTags: async (): Promise<Tag[]> => {
+    const response = await api.get('/tags');
+    return response.data;
+  },
+
+  // 특정 태그 조회
+  getTag: async (id: number): Promise<Tag> => {
+    const response = await api.get(`/tags/${id}`);
+    return response.data;
+  },
+
+  // 관리자 - 태그 생성
+  createTag: async (data: TagCreateRequest): Promise<Tag> => {
+    const response = await api.post('/admin/tags', data);
+    return response.data;
+  },
+
+  // 관리자 - 태그 수정
+  updateTag: async (id: number, data: Partial<TagCreateRequest>): Promise<Tag> => {
+    const response = await api.put(`/admin/tags/${id}`, data);
+    return response.data;
+  },
+
+  // 관리자 - 태그 삭제
+  deleteTag: async (id: number): Promise<void> => {
+    await api.delete(`/admin/tags/${id}`);
+  },
+
+  // 관리자 - 태그 사용 횟수 재계산
+  recalculateUsage: async (id: number): Promise<Tag> => {
+    const response = await api.post(`/admin/tags/${id}/recalculate-usage`);
+    return response.data;
+  },
+
+  // 관리자 - 모든 태그 사용 횟수 재계산
+  recalculateAllUsage: async (): Promise<{ message: string }> => {
+    const response = await api.post('/admin/tags/recalculate-usage');
+    return response.data;
+  },
+};
+
 export default api;
