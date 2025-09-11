@@ -3,20 +3,12 @@ package com.lorecraft.tcglounge.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "leaders")
 @DiscriminatorValue("LEADER")
 public class LeaderCard extends Card {
     
-    @Column(name = "life_points", nullable = false)
-    private Integer lifePoints;
-    
     @Column(name = "leader_skill", columnDefinition = "TEXT")
     private String leaderSkill;
-    
-    @Column(name = "awakening_condition", columnDefinition = "TEXT")
-    private String awakeningCondition;
-    
-    @Column(name = "awakened_form_id")
-    private Long awakenedFormId;
     
     @Column(name = "is_awakened")
     private Boolean isAwakened = false;
@@ -36,29 +28,22 @@ public class LeaderCard extends Card {
     }
     
     public LeaderCard(String cardName, CardColor cardColor, CardRarity rarity, Integer cost,
-                      Integer lifePoints, Integer burstSlot1, Integer burstSlot2, Integer burstSlot3) {
+                      Integer burstSlot1, Integer burstSlot2, Integer burstSlot3) {
         super(cardName, cardColor, rarity, cost);
-        this.lifePoints = lifePoints;
         this.burstSlot1 = burstSlot1;
         this.burstSlot2 = burstSlot2;
         this.burstSlot3 = burstSlot3;
     }
     
     // Getters
-    public Integer getLifePoints() { return lifePoints; }
     public String getLeaderSkill() { return leaderSkill; }
-    public String getAwakeningCondition() { return awakeningCondition; }
-    public Long getAwakenedFormId() { return awakenedFormId; }
     public Boolean getIsAwakened() { return isAwakened; }
     public Integer getBurstSlot1() { return burstSlot1; }
     public Integer getBurstSlot2() { return burstSlot2; }
     public Integer getBurstSlot3() { return burstSlot3; }
     
     // Setters
-    public void setLifePoints(Integer lifePoints) { this.lifePoints = lifePoints; }
     public void setLeaderSkill(String leaderSkill) { this.leaderSkill = leaderSkill; }
-    public void setAwakeningCondition(String awakeningCondition) { this.awakeningCondition = awakeningCondition; }
-    public void setAwakenedFormId(Long awakenedFormId) { this.awakenedFormId = awakenedFormId; }
     public void setIsAwakened(Boolean isAwakened) { this.isAwakened = isAwakened; }
     public void setBurstSlot1(Integer burstSlot1) { this.burstSlot1 = burstSlot1; }
     public void setBurstSlot2(Integer burstSlot2) { this.burstSlot2 = burstSlot2; }

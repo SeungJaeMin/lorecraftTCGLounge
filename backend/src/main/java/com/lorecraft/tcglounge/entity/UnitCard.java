@@ -3,6 +3,7 @@ package com.lorecraft.tcglounge.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "units")
 @DiscriminatorValue("UNIT")
 public class UnitCard extends Card {
     

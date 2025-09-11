@@ -3,6 +3,7 @@ package com.lorecraft.tcglounge.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "spells")
 @DiscriminatorValue("SPELL")
 public class SpellCard extends Card {
     

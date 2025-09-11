@@ -3,6 +3,7 @@ package com.lorecraft.tcglounge.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "items")
 @DiscriminatorValue("ITEM")
 public class ItemCard extends Card {
     
@@ -14,9 +15,6 @@ public class ItemCard extends Card {
     
     @Column(name = "is_consumable")
     private Boolean isConsumable = true;
-    
-    @Column(name = "stack_limit")
-    private Integer stackLimit;
     
     @Column(name = "burst_value", nullable = false)
     private Integer burstValue; // 1~3
@@ -37,13 +35,11 @@ public class ItemCard extends Card {
     public String getEffect() { return effect; }
     public String getActivationCondition() { return activationCondition; }
     public Boolean getIsConsumable() { return isConsumable; }
-    public Integer getStackLimit() { return stackLimit; }
     public Integer getBurstValue() { return burstValue; }
     
     // Setters
     public void setEffect(String effect) { this.effect = effect; }
     public void setActivationCondition(String activationCondition) { this.activationCondition = activationCondition; }
     public void setIsConsumable(Boolean isConsumable) { this.isConsumable = isConsumable; }
-    public void setStackLimit(Integer stackLimit) { this.stackLimit = stackLimit; }
     public void setBurstValue(Integer burstValue) { this.burstValue = burstValue; }
 }

@@ -18,7 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/cards")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
 public class CardController {
 
     private final CardService cardService;

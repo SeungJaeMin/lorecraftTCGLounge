@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "cards")
 @EntityListeners(AuditingEntityListener.class)
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "card_type")
 public class Card {
     
@@ -42,23 +42,6 @@ public class Card {
     @Column(name = "card_number")
     private String cardNumber;
     
-    @Column(name = "burst_slot1", nullable = false)
-    private Integer burstSlot1 = 0;
-    
-    @Column(name = "burst_slot2", nullable = false)
-    private Integer burstSlot2 = 0;
-    
-    @Column(name = "burst_slot3", nullable = false)
-    private Integer burstSlot3 = 0;
-    
-    @Column(name = "burst_value", nullable = false)
-    private Integer burstValue = 0;
-    
-    @Column(name = "life_points", nullable = false)
-    private Integer lifePoints = 0;
-    
-    @Column(name = "power", nullable = false)
-    private Integer power = 0;
     
     @CreatedDate
     @Column(name = "created_at")
@@ -86,12 +69,6 @@ public class Card {
     public CardRarity getRarity() { return rarity; }
     public Integer getCost() { return cost; }
     public String getCardNumber() { return cardNumber; }
-    public Integer getBurstSlot1() { return burstSlot1; }
-    public Integer getBurstSlot2() { return burstSlot2; }
-    public Integer getBurstSlot3() { return burstSlot3; }
-    public Integer getBurstValue() { return burstValue; }
-    public Integer getLifePoints() { return lifePoints; }
-    public Integer getPower() { return power; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     
@@ -104,12 +81,6 @@ public class Card {
     public void setRarity(CardRarity rarity) { this.rarity = rarity; }
     public void setCost(Integer cost) { this.cost = cost; }
     public void setCardNumber(String cardNumber) { this.cardNumber = cardNumber; }
-    public void setBurstSlot1(Integer burstSlot1) { this.burstSlot1 = burstSlot1; }
-    public void setBurstSlot2(Integer burstSlot2) { this.burstSlot2 = burstSlot2; }
-    public void setBurstSlot3(Integer burstSlot3) { this.burstSlot3 = burstSlot3; }
-    public void setBurstValue(Integer burstValue) { this.burstValue = burstValue; }
-    public void setLifePoints(Integer lifePoints) { this.lifePoints = lifePoints; }
-    public void setPower(Integer power) { this.power = power; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
