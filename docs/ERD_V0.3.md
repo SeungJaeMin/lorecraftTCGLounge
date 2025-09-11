@@ -91,10 +91,7 @@ cards
 ```
 leaders (Single Table Inheritance)
 ├── card_id (PK, FK)
-├── life_points (not null)
 ├── leader_skill (TEXT)
-├── awakening_condition (TEXT)
-├── awakened_form_id
 ├── is_awakened (default: false)
 ├── burst_slot1 (1~3, not null)
 ├── burst_slot2 (1~3, not null)
@@ -118,7 +115,6 @@ items (Single Table Inheritance)
 ├── effect (TEXT)
 ├── activation_condition (TEXT)
 ├── is_consumable (default: true)
-├── stack_limit
 └── burst_value (1~3, not null)
 ```
 
@@ -130,10 +126,6 @@ fields (Single Table Inheritance)
 ├── field_effect (TEXT)
 ├── affected_colors
 ├── affected_types
-├── activation_timing
-├── is_global (default: false)
-├── max_active_count (default: 1)
-├── maintenance_cost
 └── burst_value (1~3, not null)
 ```
 
