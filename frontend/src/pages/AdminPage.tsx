@@ -71,6 +71,8 @@ import { useNavigate } from 'react-router-dom';
 import ArticleManagement from '../components/admin/ArticleManagement';
 import ArticleEditor from '../components/admin/ArticleEditor';
 import TagManagement from '../components/admin/TagManagement';
+import CardManagement from '../components/admin/CardManagement';
+import CardEditor from '../components/admin/CardEditor';
 
 const AdminPage: React.FC = () => {
   const navigate = useNavigate();
@@ -81,6 +83,10 @@ const AdminPage: React.FC = () => {
   const [showArticleEditor, setShowArticleEditor] = React.useState(false);
   const [selectedArticle, setSelectedArticle] = React.useState<any>(null);
   const [showTagManagement, setShowTagManagement] = React.useState(false);
+
+  // 카드 관리 상태
+  const [showCardEditor, setShowCardEditor] = React.useState(false);
+  const [selectedCard, setSelectedCard] = React.useState<any>(null);
 
   const handleLogout = () => {
     navigate('/');
@@ -392,6 +398,7 @@ const AdminPage: React.FC = () => {
             <Tab label="대회 승인" />
             <Tab label="점주 승인" />
             <Tab label="뉴스/공지 관리" />
+            <Tab label="카드 정보 관리" />
             <Tab label="시스템 알림" />
           </Tabs>
         </Paper>
@@ -666,6 +673,38 @@ const AdminPage: React.FC = () => {
         )}
 
         {tabValue === 4 && (
+          <Box>
+            {!showCardEditor && (
+              <CardManagement
+                onCreateNew={() => {
+                  setSelectedCard(null);
+                  setShowCardEditor(true);
+                }}
+                onEdit={(card) => {
+                  setSelectedCard(card);
+                  setShowCardEditor(true);
+                }}
+              />
+            )}
+
+            <CardEditor
+              open={showCardEditor}
+              card={selectedCard}
+              onClose={() => {
+                setShowCardEditor(false);
+                setSelectedCard(null);
+              }}
+              onSave={(card) => {
+                console.log('Card saved:', card);
+                // Refresh card list or handle success
+                setShowCardEditor(false);
+                setSelectedCard(null);
+              }}
+            />
+          </Box>
+        )}
+
+        {tabValue === 5 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             {systemAlerts.map((alert) => (
               <Box key={alert.id} sx={{ flex: '1 1 100%' }}>

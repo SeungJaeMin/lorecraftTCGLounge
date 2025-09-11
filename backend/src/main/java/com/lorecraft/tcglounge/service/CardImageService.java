@@ -93,7 +93,7 @@ public class CardImageService {
     }
     
     public List<CardImage> getImagesByCardId(Long cardId) {
-        return cardImageRepository.findByCardCardId(cardId);
+        return cardImageRepository.findByCard_CardId(cardId);
     }
     
     public CardImage getImageById(Long imageId) {
@@ -105,7 +105,7 @@ public class CardImageService {
     }
     
     public List<CardImage> getImagesByCardIdAndCategory(Long cardId, String category) {
-        return cardImageRepository.findByCardCardIdAndImageCategory(cardId, category);
+        return cardImageRepository.findByCard_CardIdAndImageCategory(cardId, category);
     }
     
     public void deleteImage(Long imageId) throws Exception {

@@ -89,3 +89,8 @@ backend/src/main/java/com/lorecraft/tcglounge/service/*.disabled
 
 # Malformed path files (to be cleaned)
 E：*
+
+# MCP Server tools (GitHub integration)
+node_modules/
+package.json
+package-lock.json

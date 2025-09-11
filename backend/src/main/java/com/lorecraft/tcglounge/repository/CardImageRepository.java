@@ -9,7 +9,12 @@ import java.util.List;
 @Repository
 public interface CardImageRepository extends JpaRepository<CardImage, Long> {
     
-    List<CardImage> findByCardCardId(Long cardId);
+    // 특정 카드의 모든 이미지 조회
+    List<CardImage> findByCard_CardId(Long cardId);
     
-    List<CardImage> findByCardCardIdAndImageCategory(Long cardId, String imageCategory);
+    // 특정 카드의 특정 카테고리 이미지 조회
+    List<CardImage> findByCard_CardIdAndImageCategory(Long cardId, String imageCategory);
+    
+    // 카테고리별 이미지 조회
+    List<CardImage> findByImageCategory(String imageCategory);
 }
