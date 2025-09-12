@@ -33,8 +33,9 @@ public class CardController {
     public ResponseEntity<List<CardDTO>> getAllCards() {
         List<Card> cards = cardService.findAll();
         List<CardDTO> cardDTOs = cards.stream().map(card -> {
-            List<CardImage> images = cardImageService.getImagesByCardId(card.getCardId());
-            List<CardImageDTO> imageDTOs = images.stream()
+            // Service에서 이미 batch loading으로 images를 로드했으므로
+            // 별도 DB 호출 없이 엔티티에서 바로 가져옴
+            List<CardImageDTO> imageDTOs = card.getCardImages().stream()
                 .map(CardImageDTO::new)
                 .collect(java.util.stream.Collectors.toList());
             return new CardDTO(card, imageDTOs);
@@ -59,8 +60,9 @@ public class CardController {
     public ResponseEntity<List<CardDTO>> searchCards(@RequestParam String name) {
         List<Card> cards = cardService.searchByName(name);
         List<CardDTO> cardDTOs = cards.stream().map(card -> {
-            List<CardImage> images = cardImageService.getImagesByCardId(card.getCardId());
-            List<CardImageDTO> imageDTOs = images.stream()
+            // Service에서 이미 batch loading으로 images를 로드했으므로
+            // 별도 DB 호출 없이 엔티티에서 바로 가져옴
+            List<CardImageDTO> imageDTOs = card.getCardImages().stream()
                 .map(CardImageDTO::new)
                 .collect(java.util.stream.Collectors.toList());
             return new CardDTO(card, imageDTOs);

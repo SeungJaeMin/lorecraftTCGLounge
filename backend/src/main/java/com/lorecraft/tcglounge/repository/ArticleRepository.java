@@ -42,7 +42,11 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findByAuthorId(Long authorId);
     Page<Article> findByAuthorId(Long authorId, Pageable pageable);
     
-    // 게시일 기준 조회
+    // 게시일 기준 조회 (tags 포함 eager loading)
+    @Query("SELECT DISTINCT a FROM Article a LEFT JOIN FETCH a.tags WHERE a.status = 'PUBLIC' AND a.publishDate <= :now")
+    List<Article> findPublishedArticlesWithTags(@Param("now") LocalDateTime now);
+    
+    // 게시일 기준 조회 (페이징용)
     @Query("SELECT a FROM Article a WHERE a.status = 'PUBLIC' AND a.publishDate <= :now ORDER BY a.publishDate DESC")
     Page<Article> findPublishedArticles(@Param("now") LocalDateTime now, Pageable pageable);
     

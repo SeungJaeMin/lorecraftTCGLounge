@@ -138,37 +138,50 @@ public class ArticleService {
     // 게시된 게시글 목록 조회
     @Transactional(readOnly = true)
     public Page<Article> findPublishedArticles(Pageable pageable) {
-        return articleRepository.findPublishedArticles(LocalDateTime.now(), pageable);
+        Page<Article> articles = articleRepository.findPublishedArticles(LocalDateTime.now(), pageable);
+        // tags를 미리 로드하여 LazyInitializationException 방지
+        articles.getContent().forEach(article -> article.getTags().size());
+        return articles;
     }
     
     // 카테고리별 게시글 조회
     @Transactional(readOnly = true)
     public Page<Article> findByCategory(Article.ArticleCategory category, Pageable pageable) {
-        return articleRepository.findByStatusAndCategory(Article.ArticleStatus.PUBLIC, category, pageable);
+        Page<Article> articles = articleRepository.findByStatusAndCategory(Article.ArticleStatus.PUBLIC, category, pageable);
+        articles.getContent().forEach(article -> article.getTags().size());
+        return articles;
     }
     
     // 주요 뉴스 조회
     @Transactional(readOnly = true)
     public List<Article> findFeaturedArticles() {
-        return articleRepository.findByFeaturedTrueAndStatus(Article.ArticleStatus.PUBLIC);
+        List<Article> articles = articleRepository.findByFeaturedTrueAndStatus(Article.ArticleStatus.PUBLIC);
+        articles.forEach(article -> article.getTags().size());
+        return articles;
     }
     
     // 주요 뉴스 조회 (페이지네이션)
     @Transactional(readOnly = true)
     public Page<Article> findFeaturedPublishedArticles(Pageable pageable) {
-        return articleRepository.findByFeaturedTrueAndStatus(Article.ArticleStatus.PUBLIC, pageable);
+        Page<Article> articles = articleRepository.findByFeaturedTrueAndStatus(Article.ArticleStatus.PUBLIC, pageable);
+        articles.getContent().forEach(article -> article.getTags().size());
+        return articles;
     }
     
     // 키워드 검색
     @Transactional(readOnly = true)
     public Page<Article> searchPublishedArticles(String keyword, Pageable pageable) {
-        return articleRepository.findPublishedByKeyword(keyword, pageable);
+        Page<Article> articles = articleRepository.findPublishedByKeyword(keyword, pageable);
+        articles.getContent().forEach(article -> article.getTags().size());
+        return articles;
     }
     
     // 태그별 게시글 조회
     @Transactional(readOnly = true)
     public Page<Article> findByTag(String tagSlug, Pageable pageable) {
-        return articleRepository.findByTagSlug(tagSlug, pageable);
+        Page<Article> articles = articleRepository.findByTagSlug(tagSlug, pageable);
+        articles.getContent().forEach(article -> article.getTags().size());
+        return articles;
     }
     
     // 인기 게시글 조회

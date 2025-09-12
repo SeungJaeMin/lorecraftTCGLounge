@@ -36,12 +36,18 @@ public class CardService {
     
     @Transactional(readOnly = true)
     public List<Card> findAll() {
-        return cardRepository.findAll();
+        List<Card> cards = cardRepository.findAll();
+        // CardImage 연관관계 미리 로드 (batch_fetch_size 활용)
+        cards.forEach(card -> card.getCardImages().size());
+        return cards;
     }
     
     @Transactional(readOnly = true)
     public List<Card> searchByName(String cardName) {
-        return cardRepository.findByCardNameContaining(cardName);
+        List<Card> cards = cardRepository.findByCardNameContaining(cardName);
+        // CardImage 연관관계 미리 로드 (batch_fetch_size 활용)
+        cards.forEach(card -> card.getCardImages().size());
+        return cards;
     }
     
     @Transactional(readOnly = true)

@@ -22,12 +22,17 @@ spring:
     
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+        discriminator.ignore_explicit_for_joined: true
+        default_batch_fetch_size: 10
+        jdbc.batch_size: 10
+        order_inserts: true
+        order_updates: true
         
   # Redis disabled for development
   # data:
@@ -76,12 +81,17 @@ spring:
       
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
+    open-in-view: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+        discriminator.ignore_explicit_for_joined: true
+        default_batch_fetch_size: 10
+        jdbc.batch_size: 10
+        order_inserts: true
+        order_updates: true
         
   data:
     redis:
@@ -129,12 +139,17 @@ spring:
       
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
+    open-in-view: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+        discriminator.ignore_explicit_for_joined: true
+        default_batch_fetch_size: 10
+        jdbc.batch_size: 10
+        order_inserts: true
+        order_updates: true
         
   data:
     redis:

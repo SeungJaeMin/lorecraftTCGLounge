@@ -63,9 +63,10 @@ public class ArticleDTO {
                     .toList();
         }
         
-        if (article.getAdminAuthor() != null) {
-            this.adminAuthorNickname = article.getAdminAuthor().getNickname();
-        }
+        // adminAuthor 로딩 제거 - 필요시에만 별도 조회
+        // if (article.getAdminAuthor() != null) {
+        //     this.adminAuthorNickname = article.getAdminAuthor().getNickname();
+        // }
     }
     
     // Getters and Setters
