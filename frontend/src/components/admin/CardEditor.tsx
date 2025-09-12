@@ -154,7 +154,7 @@ const CardEditor: React.FC<CardEditorProps> = ({ open, card, onClose, onSave }) 
     formData.append('category', 'main');
 
     try {
-      const response = await fetch(`http://localhost:8090/api/v1/admin/cards/${cardId}/images`, {
+      const response = await fetch(`http://localhost:8090/api/v1/cards/${cardId}/images`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
@@ -183,8 +183,8 @@ const CardEditor: React.FC<CardEditorProps> = ({ open, card, onClose, onSave }) 
 
     try {
       const url = card?.cardId 
-        ? `http://localhost:8090/api/v1/admin/cards/${card.cardId}`
-        : 'http://localhost:8090/api/v1/admin/cards';
+        ? `http://localhost:8090/api/v1/cards/${card.cardId}`
+        : 'http://localhost:8090/api/v1/cards';
       
       const method = card?.cardId ? 'PUT' : 'POST';
       

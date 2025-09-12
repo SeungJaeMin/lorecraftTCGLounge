@@ -128,7 +128,7 @@ const CardManagement: React.FC<CardManagementProps> = ({ onCreateNew, onEdit }) 
       if (selectedCardColor) params.append('cardColor', selectedCardColor);
       if (selectedRarity) params.append('rarity', selectedRarity);
 
-      const response = await fetch(`http://localhost:8090/api/v1/admin/cards?${params}`, {
+      const response = await fetch(`http://localhost:8090/api/v1/cards/admin?${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
         }
@@ -165,7 +165,7 @@ const CardManagement: React.FC<CardManagementProps> = ({ onCreateNew, onEdit }) 
 
   const handleDeleteCard = async (card: CardData) => {
     try {
-      const response = await fetch(`http://localhost:8090/api/v1/admin/cards/${card.cardId}`, {
+      const response = await fetch(`http://localhost:8090/api/v1/cards/${card.cardId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
@@ -198,7 +198,7 @@ const CardManagement: React.FC<CardManagementProps> = ({ onCreateNew, onEdit }) 
     if (selectedCards.length === 0) return;
 
     try {
-      const response = await fetch(`http://localhost:8090/api/v1/admin/cards/bulk-delete`, {
+      const response = await fetch(`http://localhost:8090/api/v1/cards/bulk-delete`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

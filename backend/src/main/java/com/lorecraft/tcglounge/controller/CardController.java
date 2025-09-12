@@ -4,11 +4,20 @@ import com.lorecraft.tcglounge.entity.Card;
 import com.lorecraft.tcglounge.entity.CardImage;
 import com.lorecraft.tcglounge.dto.CardDTO;
 import com.lorecraft.tcglounge.dto.CardImageDTO;
+import com.lorecraft.tcglounge.dto.CardCreateDTO;
+import com.lorecraft.tcglounge.dto.CardUpdateDTO;
+import com.lorecraft.tcglounge.dto.CardDetailDTO;
 import com.lorecraft.tcglounge.service.CardService;
 import com.lorecraft.tcglounge.service.CardImageService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,14 +42,29 @@ public class CardController {
     public ResponseEntity<List<CardDTO>> getAllCards() {
         List<Card> cards = cardService.findAll();
         List<CardDTO> cardDTOs = cards.stream().map(card -> {
-            // Service에서 이미 batch loading으로 images를 로드했으므로
-            // 별도 DB 호출 없이 엔티티에서 바로 가져옴
-            List<CardImageDTO> imageDTOs = card.getCardImages().stream()
+            List<CardImage> images = cardImageService.getImagesByCardId(card.getCardId());
+            List<CardImageDTO> imageDTOs = images.stream()
                 .map(CardImageDTO::new)
                 .collect(java.util.stream.Collectors.toList());
             return new CardDTO(card, imageDTOs);
         }).collect(java.util.stream.Collectors.toList());
         return ResponseEntity.ok(cardDTOs);
+    }
+
+    // ========== 관리자 전용 기능들 ==========
+    
+    // 관리자용 카드 목록 조회 (페이징, 필터링 포함)
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<CardDetailDTO>> getAdminCards(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String cardType,
+            @RequestParam(required = false) String cardColor,
+            @RequestParam(required = false) String rarity,
+            @RequestParam(required = false) String searchTerm) {
+        
+        Page<CardDetailDTO> cards = cardService.getAllCards(pageable, cardType, cardColor, rarity, searchTerm);
+        return ResponseEntity.ok(cards);
     }
 
     @GetMapping("/{id}")
@@ -60,9 +84,8 @@ public class CardController {
     public ResponseEntity<List<CardDTO>> searchCards(@RequestParam String name) {
         List<Card> cards = cardService.searchByName(name);
         List<CardDTO> cardDTOs = cards.stream().map(card -> {
-            // Service에서 이미 batch loading으로 images를 로드했으므로
-            // 별도 DB 호출 없이 엔티티에서 바로 가져옴
-            List<CardImageDTO> imageDTOs = card.getCardImages().stream()
+            List<CardImage> images = cardImageService.getImagesByCardId(card.getCardId());
+            List<CardImageDTO> imageDTOs = images.stream()
                 .map(CardImageDTO::new)
                 .collect(java.util.stream.Collectors.toList());
             return new CardDTO(card, imageDTOs);
@@ -70,61 +93,7 @@ public class CardController {
         return ResponseEntity.ok(cardDTOs);
     }
 
-    @PostMapping
-    public ResponseEntity<Map<String, Object>> createCard(@RequestBody Map<String, Object> request) {
-        try {
-            String cardName = (String) request.get("cardName");
-            String colorStr = (String) request.get("cardColor");
-            String rarityStr = (String) request.get("rarity");
-            Integer cost = (Integer) request.get("cost");
 
-            Card.CardColor cardColor = Card.CardColor.valueOf(colorStr);
-            Card.CardRarity rarity = Card.CardRarity.valueOf(rarityStr);
-
-            Card card = cardService.createCard(cardName, cardColor, rarity, cost);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Card created successfully");
-            response.put("cardId", card.getCardId());
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
-    @PostMapping("/init-sample-data")
-    public ResponseEntity<Map<String, Object>> initSampleData() {
-        try {
-            // 샘플 카드 데이터 생성
-            cardService.createCard("화염 드래곤", Card.CardColor.RED, Card.CardRarity.LEGENDARY, 8);
-            cardService.createCard("빙결의 마법사", Card.CardColor.BLUE, Card.CardRarity.RARE, 5);
-            cardService.createCard("번개 폭풍", Card.CardColor.YELLOW, Card.CardRarity.COMMON, 3);
-            cardService.createCard("치유의 성수", Card.CardColor.COLORLESS, Card.CardRarity.COMMON, 2);
-            cardService.createCard("어둠의 검사", Card.CardColor.BLACK, Card.CardRarity.RARE, 4);
-            cardService.createCard("자연의 수호자", Card.CardColor.GREEN, Card.CardRarity.SUPER_RARE, 6);
-            cardService.createCard("신성한 기사", Card.CardColor.COLORLESS, Card.CardRarity.ULTRA_RARE, 7);
-            cardService.createCard("고대의 정령", Card.CardColor.GREEN, Card.CardRarity.SECRET_RARE, 9);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Sample data initialized successfully");
-            response.put("cardsCreated", 8);
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
 
     // 이미지 업로드
     @PostMapping("/{cardId}/images")
@@ -206,4 +175,102 @@ public class CardController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
+    // 카드 생성 (관리자 전용)
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> createCard(@RequestBody CardCreateDTO cardCreateDTO) {
+        try {
+            Card createdCard = cardService.createCard(cardCreateDTO);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Card created successfully");
+            response.put("cardId", createdCard.getCardId());
+            response.put("cardName", createdCard.getCardName());
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to create card: " + e.getMessage());
+            
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // 카드 수정 (관리자 전용)
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> updateCard(
+            @PathVariable Long id,
+            @RequestBody CardUpdateDTO cardUpdateDTO) {
+        try {
+            Card updatedCard = cardService.updateCard(id, cardUpdateDTO);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Card updated successfully");
+            response.put("cardId", updatedCard.getCardId());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to update card: " + e.getMessage());
+            
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // 카드 삭제 (관리자 전용)
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> deleteCard(@PathVariable Long id) {
+        try {
+            cardService.deleteCard(id);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Card deleted successfully");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to delete card: " + e.getMessage());
+            
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // 카드 통계 조회 (관리자 전용)
+    @GetMapping("/statistics")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> getCardStatistics() {
+        Map<String, Object> stats = cardService.getCardStatistics();
+        return ResponseEntity.ok(stats);
+    }
+
+    // 대량 삭제 (관리자 전용)
+    @PostMapping("/bulk-delete")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> bulkDeleteCards(@RequestBody List<Long> cardIds) {
+        try {
+            cardService.bulkDeleteCards(cardIds);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", cardIds.size() + " cards deleted successfully");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to delete cards: " + e.getMessage());
+            
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
 }

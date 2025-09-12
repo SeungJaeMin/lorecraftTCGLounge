@@ -42,6 +42,14 @@ CREATE TABLE article_views (
 - [ ] 예약 발행 시스템 고도화
 - [ ] 멀티미디어 관리 (이미지/동영상)
 
+### Card 관리 시스템 개선
+- [ ] 권한별 Card Response 차별화 구현
+  - 일반 사용자: 기본 정보만 (id, name, color, rarity, cost, images)
+  - 관리자: 추가 관리 정보 포함 (createdAt, updatedAt, isActive, createdBy 등)
+- [ ] CardDetailDTO vs CardDTO 분리 및 권한 기반 응답
+- [ ] 관리자 전용 필터링 옵션 (비활성 카드 조회 등)
+- [ ] 카드 통계 및 분석 기능 (statistics endpoint 활용)
+
 ### SEO 및 성능
 - [ ] 사이트맵 자동 생성
 - [ ] 검색엔진 최적화 도구

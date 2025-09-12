@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Table(name = "cards")
 @EntityListeners(AuditingEntityListener.class)
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "card_type")
+@DiscriminatorColumn(name = "card_type", discriminatorType = DiscriminatorType.STRING)
 public class Card {
     
     @Id
@@ -42,6 +42,9 @@ public class Card {
     @Column(name = "card_number")
     private String cardNumber;
     
+    @Column(name = "card_type", nullable = false)
+    private String cardType;
+    
     
     @CreatedDate
     @Column(name = "created_at")
@@ -69,6 +72,7 @@ public class Card {
     public CardRarity getRarity() { return rarity; }
     public Integer getCost() { return cost; }
     public String getCardNumber() { return cardNumber; }
+    public String getCardType() { return cardType; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     
@@ -81,6 +85,7 @@ public class Card {
     public void setRarity(CardRarity rarity) { this.rarity = rarity; }
     public void setCost(Integer cost) { this.cost = cost; }
     public void setCardNumber(String cardNumber) { this.cardNumber = cardNumber; }
+    public void setCardType(String cardType) { this.cardType = cardType; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
