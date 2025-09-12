@@ -117,7 +117,13 @@ public class AuthController {
     }
 
     private String determineUserType(User user) {
-        // 상속 구조를 확인하여 사용자 타입 결정
+        // 데이터베이스의 user_type 컬럼 값을 직접 사용
+        String userType = user.getUserType();
+        if (userType != null) {
+            return userType;
+        }
+        
+        // Fallback: 상속 구조를 확인하여 사용자 타입 결정
         if (user instanceof Gamer) {
             return "GAMER";
         } else if (user instanceof Admin) {

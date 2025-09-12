@@ -45,6 +45,9 @@ public class User {
     @Column(name = "is_active")
     private Boolean isActive = true;
     
+    @Column(name = "user_type", insertable = false, updatable = false)
+    private String userType;
+    
     public User() {}
     
     public User(String userid, String password, String nickname, String email) {
@@ -64,6 +67,7 @@ public class User {
     public LocalDateTime getRegisterDate() { return registerDate; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public Boolean getIsActive() { return isActive; }
+    public String getUserType() { return userType; }
     
     // Setters
     public void setUid(Long uid) { this.uid = uid; }

@@ -2,13 +2,17 @@ package com.lorecraft.tcglounge.repository;
 
 import com.lorecraft.tcglounge.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByUserid(String userid);
+    @Query("SELECT u FROM User u WHERE u.userid = :userid")
+    Optional<User> findByUserid(@Param("userid") String userid);
+    
     Optional<User> findByEmail(String email);
     boolean existsByUserid(String userid);
     boolean existsByEmail(String email);
