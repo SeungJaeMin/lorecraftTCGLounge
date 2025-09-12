@@ -29,9 +29,11 @@ import {
   People
 } from '@mui/icons-material';
 import Navigation from '../components/Navigation';
+import LoginModal from '../components/LoginModal';
 
 const EventPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const events = [
     {
@@ -95,7 +97,7 @@ const EventPage: React.FC = () => {
 
   return (
     <Box>
-      <Navigation />
+      <Navigation onLoginClick={() => setLoginModalOpen(true)} />
 
       <Container maxWidth="lg" sx={{ pt: 12, pb: 4 }}>
         <Box sx={{ mb: 4, textAlign: 'center' }}>
@@ -215,6 +217,12 @@ const EventPage: React.FC = () => {
           ))}
         </Box>
       </Container>
+
+      {/* 로그인 모달 */}
+      <LoginModal 
+        open={loginModalOpen} 
+        onClose={() => setLoginModalOpen(false)} 
+      />
     </Box>
   );
 };

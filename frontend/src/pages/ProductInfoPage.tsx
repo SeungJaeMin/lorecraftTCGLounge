@@ -35,10 +35,12 @@ import {
   Launch
 } from '@mui/icons-material';
 import Navigation from '../components/Navigation';
+import LoginModal from '../components/LoginModal';
 
 const ProductInfoPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -162,7 +164,7 @@ const ProductInfoPage: React.FC = () => {
 
   return (
     <Box>
-      <Navigation />
+      <Navigation onLoginClick={() => setLoginModalOpen(true)} />
 
       {/* 메인 콘텐츠 */}
       <Container maxWidth="lg" sx={{ pt: 12, pb: 4 }}>
@@ -459,6 +461,12 @@ const ProductInfoPage: React.FC = () => {
           </Box>
         </Box>
       </Container>
+
+      {/* 로그인 모달 */}
+      <LoginModal 
+        open={loginModalOpen} 
+        onClose={() => setLoginModalOpen(false)} 
+      />
     </Box>
   );
 };

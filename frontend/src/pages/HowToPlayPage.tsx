@@ -38,9 +38,11 @@ import {
   Shield
 } from '@mui/icons-material';
 import Navigation from '../components/Navigation';
+import LoginModal from '../components/LoginModal';
 
 const HowToPlayPage: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const gameSteps = [
     {
@@ -162,7 +164,7 @@ const HowToPlayPage: React.FC = () => {
 
   return (
     <Box>
-      <Navigation />
+      <Navigation onLoginClick={() => setLoginModalOpen(true)} />
 
       {/* 메인 콘텐츠 */}
       <Container maxWidth="lg" sx={{ pt: 12, pb: 4 }}>
@@ -414,6 +416,12 @@ const HowToPlayPage: React.FC = () => {
           </Box>
         </Box>
       </Container>
+
+      {/* 로그인 모달 */}
+      <LoginModal 
+        open={loginModalOpen} 
+        onClose={() => setLoginModalOpen(false)} 
+      />
     </Box>
   );
 };

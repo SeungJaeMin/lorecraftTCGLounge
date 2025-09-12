@@ -29,11 +29,13 @@ import {
   Schedule
 } from '@mui/icons-material';
 import Navigation from '../components/Navigation';
+import LoginModal from '../components/LoginModal';
 
 const TournamentPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [region, setRegion] = useState('all');
   const [format, setFormat] = useState('all');
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const tournaments = [
     {
@@ -114,7 +116,7 @@ const TournamentPage: React.FC = () => {
 
   return (
     <Box>
-      <Navigation />
+      <Navigation onLoginClick={() => setLoginModalOpen(true)} />
 
       <Container maxWidth="lg" sx={{ pt: 12, pb: 4 }}>
         <Box sx={{ mb: 4, textAlign: 'center' }}>
@@ -240,6 +242,12 @@ const TournamentPage: React.FC = () => {
           ))}
         </Box>
       </Container>
+
+      {/* 로그인 모달 */}
+      <LoginModal 
+        open={loginModalOpen} 
+        onClose={() => setLoginModalOpen(false)} 
+      />
     </Box>
   );
 };

@@ -25,6 +25,7 @@ import {
   Event
 } from '@mui/icons-material';
 import Navigation from '../components/Navigation';
+import LoginModal from '../components/LoginModal';
 import { articleApi, Article } from '../services/api';
 
 const NewsPage: React.FC = () => {
@@ -34,6 +35,7 @@ const NewsPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -113,7 +115,7 @@ const NewsPage: React.FC = () => {
 
   return (
     <Box>
-      <Navigation />
+      <Navigation onLoginClick={() => setLoginModalOpen(true)} />
 
       {/* 메인 콘텐츠 */}
       <Container maxWidth="lg" sx={{ pt: 12, pb: 4 }}>
@@ -302,6 +304,12 @@ const NewsPage: React.FC = () => {
           </Box>
         )}
       </Container>
+
+      {/* 로그인 모달 */}
+      <LoginModal 
+        open={loginModalOpen} 
+        onClose={() => setLoginModalOpen(false)} 
+      />
     </Box>
   );
 };

@@ -27,6 +27,7 @@ import {
   ExpandLess
 } from '@mui/icons-material';
 import Navigation from '../components/Navigation';
+import LoginModal from '../components/LoginModal';
 import { Card as CardType, cardApi } from '../services/api';
 
 const CardSearchPage: React.FC = () => {
@@ -42,6 +43,7 @@ const CardSearchPage: React.FC = () => {
   const [filteredCards, setFilteredCards] = useState<CardType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   // 카드 데이터 로드
   useEffect(() => {
@@ -131,7 +133,7 @@ const CardSearchPage: React.FC = () => {
   if (loading) {
     return (
       <Box>
-        <Navigation />
+        <Navigation onLoginClick={() => setLoginModalOpen(true)} />
         <Container maxWidth="lg" sx={{ py: 4 }}>
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
             <Box textAlign="center">
@@ -149,7 +151,7 @@ const CardSearchPage: React.FC = () => {
   if (error) {
     return (
       <Box>
-        <Navigation />
+        <Navigation onLoginClick={() => setLoginModalOpen(true)} />
         <Container maxWidth="lg" sx={{ py: 4 }}>
           <Alert severity="error" sx={{ mb: 3 }}>
             {error}
@@ -161,7 +163,7 @@ const CardSearchPage: React.FC = () => {
 
   return (
     <Box>
-      <Navigation />
+      <Navigation onLoginClick={() => setLoginModalOpen(true)} />
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* 제목 */}
         <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 4, textAlign: 'center' }}>
@@ -333,6 +335,12 @@ const CardSearchPage: React.FC = () => {
           />
         </Box>
       </Container>
+
+      {/* 로그인 모달 */}
+      <LoginModal 
+        open={loginModalOpen} 
+        onClose={() => setLoginModalOpen(false)} 
+      />
     </Box>
   );
 };
