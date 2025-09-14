@@ -1,0 +1,478 @@
+.mydecks {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px 0;
+}
+
+.mydecks-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Header */
+.mydecks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.mydecks-header h1 {
+  color: #2c3e50;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.create-deck-button {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-deck-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+/* Loading and Error */
+.mydecks-loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #2c3e50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  background: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.error-message p {
+  color: #d32f2f;
+  margin-bottom: 15px;
+}
+
+.error-message button {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Controls */
+.mydecks-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.filter-controls, .sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-controls label, .sort-controls label {
+  font-weight: 600;
+  color: #34495e;
+}
+
+.filter-controls select, .sort-controls select {
+  padding: 8px 12px;
+  border: 1px solid #bdc3c7;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.filter-controls select:focus, .sort-controls select:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+/* Stats */
+.deck-stats {
+  display: flex;
+  gap: 20px;
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  padding: 15px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 8px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+/* No Decks */
+.no-decks {
+  text-align: center;
+  background: #fff;
+  padding: 60px 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.no-decks-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.no-decks h3 {
+  color: #2c3e50;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.no-decks p {
+  color: #7f8c8d;
+  font-size: 16px;
+  margin-bottom: 30px;
+}
+
+.create-first-deck {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-first-deck:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+/* Decks Grid */
+.decks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.deck-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.deck-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.deck-card-header {
+  padding: 20px;
+  border-bottom: 1px solid #ecf0f1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.deck-title-section {
+  flex: 1;
+}
+
+.deck-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 10px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deck-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge.complete {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge.incomplete {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.badge.public {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.badge.tournament {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.deck-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-button {
+  background: none;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.action-button:hover {
+  background: #f8f9fa;
+}
+
+.action-button.edit:hover {
+  border-color: #3498db;
+  color: #3498db;
+}
+
+.action-button.delete:hover {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+/* Card Content */
+.deck-card-content {
+  padding: 20px;
+}
+
+.leader-card-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.leader-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border: 2px solid white;
+}
+
+.leader-icon.red { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.leader-icon.blue { background: linear-gradient(135deg, #3498db, #2980b9); }
+.leader-icon.green { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+.leader-icon.yellow { background: linear-gradient(135deg, #f39c12, #e67e22); }
+.leader-icon.purple { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+.leader-icon.colorless { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
+
+.leader-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.deck-description {
+  color: #7f8c8d;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  min-height: 40px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.deck-stats-row {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 15px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  color: #7f8c8d;
+}
+
+.stat-icon {
+  font-size: 16px;
+}
+
+.deck-progress {
+  margin-bottom: 10px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #ecf0f1;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e74c3c 0%, #f39c12 50%, #2ecc71 100%);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #7f8c8d;
+  text-align: center;
+  display: block;
+}
+
+/* Card Footer */
+.deck-card-footer {
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #ecf0f1;
+}
+
+.update-date {
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .decks-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+  
+  .mydecks-controls {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mydecks-container {
+    padding: 0 10px;
+  }
+  
+  .mydecks-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .decks-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .deck-stats {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .deck-card-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .deck-actions {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .mydecks-header h1 {
+    font-size: 24px;
+  }
+  
+  .deck-card {
+    margin: 0 -10px;
+    border-radius: 0;
+  }
+  
+  .no-decks {
+    padding: 40px 20px;
+  }
+}

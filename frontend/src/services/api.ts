@@ -356,4 +356,114 @@ export const tagApi = {
   },
 };
 
+// Deck 관련 인터페이스
+export interface Deck {
+  id: number;
+  deckName: string;
+  description: string;
+  totalCards: number;
+  isPublic: boolean;
+  isTournamentLegal: boolean;
+  leaderCard?: {
+    cardId: number;
+    cardName: string;
+    cardColor: string;
+    cardType: string;
+  };
+  likesCount: number;
+  viewsCount: number;
+  updatedAt: string;
+  createdAt: string;
+  deckCode: string;
+  deckType: string;
+}
+
+export interface DeckDetail {
+  deck: Deck;
+  card: Card;
+  quantity: number;
+  isSideboard: boolean;
+  orderIndex: number;
+}
+
+export interface DeckStats {
+  totalCards: number;
+  isComplete: boolean;
+  typeDistribution: { [key: string]: number };
+  colorDistribution: { [key: string]: number };
+  leaderCard?: Card;
+}
+
+export interface DeckCreateRequest {
+  deckName: string;
+  description?: string;
+}
+
+export interface AddCardToDeckRequest {
+  cardId: number;
+  quantity: number;
+}
+
+export interface RemoveCardFromDeckRequest {
+  cardId: number;
+  quantity: number;
+}
+
+// Deck API
+export const deckAPI = {
+  // 내 덱 목록 조회
+  getMyDecks: async () => {
+    const response = await api.get('/decks/my');
+    return response;
+  },
+
+  // 특정 덱 조회
+  getDeck: async (deckId: number) => {
+    const response = await api.get(`/decks/${deckId}`);
+    return response;
+  },
+
+  // 새 덱 생성
+  createDeck: async (deckData: DeckCreateRequest) => {
+    const response = await api.post('/decks', deckData);
+    return response;
+  },
+
+  // 덱 수정
+  updateDeck: async (deckId: number, deckData: Partial<DeckCreateRequest & { isPublic?: boolean }>) => {
+    const response = await api.put(`/decks/${deckId}`, deckData);
+    return response;
+  },
+
+  // 덱 삭제
+  deleteDeck: async (deckId: number) => {
+    const response = await api.delete(`/decks/${deckId}`);
+    return response;
+  },
+
+  // 덱에 카드 추가
+  addCardToDeck: async (deckId: number, cardData: AddCardToDeckRequest) => {
+    const response = await api.post(`/decks/${deckId}/cards`, cardData);
+    return response;
+  },
+
+  // 덱에서 카드 제거
+  removeCardFromDeck: async (deckId: number, cardData: RemoveCardFromDeckRequest) => {
+    const response = await api.delete(`/decks/${deckId}/cards`, { data: cardData });
+    return response;
+  },
+
+  // 랜덤 덱 생성
+  generateRandomDeck: async (deckName?: string) => {
+    const response = await api.post('/decks/random', { deckName });
+    return response;
+  },
+
+  // 덱 통계 조회
+  getDeckStats: async (deckId: number) => {
+    const response = await api.get(`/decks/${deckId}/stats`);
+    return response;
+  },
+};
+
 export default api;
