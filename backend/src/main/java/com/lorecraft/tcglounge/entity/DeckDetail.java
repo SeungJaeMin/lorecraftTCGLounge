@@ -1,22 +1,25 @@
 package com.lorecraft.tcglounge.entity;
 
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "deck_details")
 public class DeckDetail {
     
-    @EmbeddedId
-    private DeckDetailId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "detail_id")
+    private Long detailId;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("deckId")
-    @JoinColumn(name = "deck_id")
+    @JoinColumn(name = "deck_id", nullable = false)
     private CardDeck deck;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("cardId") 
-    @JoinColumn(name = "card_id")
+    @JoinColumn(name = "card_id", nullable = false)
     private Card card;
     
     @Column(name = "quantity", nullable = false)
@@ -28,66 +31,33 @@ public class DeckDetail {
     @Column(name = "order_index")
     private Integer orderIndex;
     
+    @CreatedDate
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+    
     public DeckDetail() {}
     
     public DeckDetail(CardDeck deck, Card card, Integer quantity) {
-        this.id = new DeckDetailId(deck.getId(), card.getCardId());
         this.deck = deck;
         this.card = card;
         this.quantity = quantity;
     }
     
     // Getters
-    public DeckDetailId getId() { return id; }
+    public Long getDetailId() { return detailId; }
     public CardDeck getDeck() { return deck; }
     public Card getCard() { return card; }
     public Integer getQuantity() { return quantity; }
     public Boolean getIsSideboard() { return isSideboard; }
     public Integer getOrderIndex() { return orderIndex; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
     
     // Setters
-    public void setId(DeckDetailId id) { this.id = id; }
+    public void setDetailId(Long detailId) { this.detailId = detailId; }
     public void setDeck(CardDeck deck) { this.deck = deck; }
     public void setCard(Card card) { this.card = card; }
     public void setQuantity(Integer quantity) { this.quantity = quantity; }
     public void setIsSideboard(Boolean isSideboard) { this.isSideboard = isSideboard; }
     public void setOrderIndex(Integer orderIndex) { this.orderIndex = orderIndex; }
-}
-
-@Embeddable
-class DeckDetailId {
-    
-    @Column(name = "deck_id")
-    private Long deckId;
-    
-    @Column(name = "card_id")
-    private Long cardId;
-    
-    public DeckDetailId() {}
-    
-    public DeckDetailId(Long deckId, Long cardId) {
-        this.deckId = deckId;
-        this.cardId = cardId;
-    }
-    
-    // Getters
-    public Long getDeckId() { return deckId; }
-    public Long getCardId() { return cardId; }
-    
-    // Setters
-    public void setDeckId(Long deckId) { this.deckId = deckId; }
-    public void setCardId(Long cardId) { this.cardId = cardId; }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DeckDetailId)) return false;
-        DeckDetailId that = (DeckDetailId) o;
-        return deckId.equals(that.deckId) && cardId.equals(that.cardId);
-    }
-    
-    @Override
-    public int hashCode() {
-        return deckId.hashCode() + cardId.hashCode();
-    }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

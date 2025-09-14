@@ -51,7 +51,7 @@ public class DeckService {
     public Optional<CardDeck> getDeckById(Long deckId, Long gamerId) {
         Gamer gamer = gamerRepository.findById(gamerId)
             .orElseThrow(() -> new RuntimeException("Gamer not found: " + gamerId));
-        return deckRepository.findByIdAndGamer(deckId, gamer);
+        return deckRepository.findByDeckIdAndGamer(deckId, gamer);
     }
     
     @Transactional(readOnly = true)
@@ -181,15 +181,15 @@ public class DeckService {
         
         // Add 1 random leader
         Card randomLeader = leaders.get(random.nextInt(leaders.size()));
-        addCardToDeck(deck.getId(), gamerId, randomLeader.getCardId(), 1);
+        addCardToDeck(deck.getDeckId(), gamerId, randomLeader.getCardId(), 1);
         deck.setLeaderCard(randomLeader);
         
         // Get leader color for deck constraint
-        String leaderColor = randomLeader.getCardColor();
+        Card.CardColor leaderColor = randomLeader.getCardColor();
         
         // Filter cards by color (include COLORLESS)
         List<Card> compatibleCards = nonLeaders.stream()
-            .filter(card -> leaderColor.equals(card.getCardColor()) || "COLORLESS".equals(card.getCardColor()))
+            .filter(card -> leaderColor.equals(card.getCardColor()) || Card.CardColor.COLORLESS.equals(card.getCardColor()))
             .toList();
         
         // Add random cards to reach 40 total
@@ -201,7 +201,7 @@ public class DeckService {
             int currentCount = cardCounts.getOrDefault(randomCard.getCardId(), 0);
             
             if (currentCount < 3) { // Max 3 per card
-                addCardToDeck(deck.getId(), gamerId, randomCard.getCardId(), 1);
+                addCardToDeck(deck.getDeckId(), gamerId, randomCard.getCardId(), 1);
                 cardCounts.put(randomCard.getCardId(), currentCount + 1);
                 cardsToAdd--;
             }
@@ -225,7 +225,7 @@ public class DeckService {
         for (DeckDetail detail : deckCards) {
             Card card = detail.getCard();
             String cardType = card.getCardType();
-            String cardColor = card.getCardColor();
+            String cardColor = card.getCardColor().toString();
             int quantity = detail.getQuantity();
             
             typeCount.put(cardType, typeCount.getOrDefault(cardType, 0) + quantity);
@@ -252,8 +252,8 @@ public class DeckService {
         }
         
         // Check color compatibility (unless COLORLESS)
-        if (deck.getLeaderCard() != null && !card.getCardColor().equals("COLORLESS")) {
-            String leaderColor = deck.getLeaderCard().getCardColor();
+        if (deck.getLeaderCard() != null && !card.getCardColor().equals(Card.CardColor.COLORLESS)) {
+            Card.CardColor leaderColor = deck.getLeaderCard().getCardColor();
             if (!card.getCardColor().equals(leaderColor)) {
                 throw new RuntimeException("Card color must match leader color or be COLORLESS");
             }

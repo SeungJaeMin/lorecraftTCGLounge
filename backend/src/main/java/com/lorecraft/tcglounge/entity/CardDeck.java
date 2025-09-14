@@ -16,8 +16,8 @@ public class CardDeck {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "deck_id")
+    private Long deckId;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gamer_id", nullable = false)
@@ -75,7 +75,7 @@ public class CardDeck {
     }
     
     // Getters
-    public Long getId() { return id; }
+    public Long getDeckId() { return deckId; }
     public Gamer getGamer() { return gamer; }
     public String getDeckName() { return deckName; }
     public String getDescription() { return description; }
@@ -92,7 +92,7 @@ public class CardDeck {
     public List<DeckDetail> getDeckDetails() { return deckDetails; }
     
     // Setters
-    public void setId(Long id) { this.id = id; }
+    public void setDeckId(Long deckId) { this.deckId = deckId; }
     public void setGamer(Gamer gamer) { this.gamer = gamer; }
     public void setDeckName(String deckName) { this.deckName = deckName; }
     public void setDescription(String description) { this.description = description; }
@@ -127,8 +127,4 @@ public class CardDeck {
         this.deckCode = "DECK_" + System.currentTimeMillis();
     }
     
-    // Enums
-    public enum DeckType {
-        STANDARD, EXTENDED, UNLIMITED, CUSTOM
-    }
 }

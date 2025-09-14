@@ -21,7 +21,7 @@ public interface CardDeckRepository extends JpaRepository<CardDeck, Long> {
     
     List<CardDeck> findByGamerAndDeckNameContaining(Gamer gamer, String deckName);
     
-    Optional<CardDeck> findByIdAndGamer(Long id, Gamer gamer);
+    Optional<CardDeck> findByDeckIdAndGamer(Long deckId, Gamer gamer);
     
     Optional<CardDeck> findByDeckCode(String deckCode);
     

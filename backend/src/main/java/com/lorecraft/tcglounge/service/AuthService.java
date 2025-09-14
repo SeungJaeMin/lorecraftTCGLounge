@@ -17,6 +17,9 @@ public class AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private JwtTokenService jwtTokenService;
 
     public User authenticate(String username, String password) {
         // userid 컬럼으로 사용자 조회
@@ -42,6 +45,12 @@ public class AuthService {
         return userOpt.orElse(null);
     }
 
+    public User findByUid(Long uid) {
+        // UID로 사용자 조회
+        Optional<User> userOpt = userRepository.findById(uid);
+        return userOpt.orElse(null);
+    }
+
     public User createUser(String username, String password, String email) {
         // 사용자 생성 로직
         User user = new User();
@@ -53,27 +62,50 @@ public class AuthService {
         return userRepository.save(user);
     }
 
+    public String generateJwtToken(User user) {
+        String userType = (user instanceof Gamer) ? "GAMER" : "USER";
+        return jwtTokenService.generateToken(user.getUid(), user.getUserid(), userType);
+    }
+
     public Long getGamerIdFromToken(String authHeader) {
-        // Simple implementation - in real app, you'd decode JWT token
-        // For now, we'll extract username from auth header and get gamer ID
-        String token = authHeader.replace("Bearer ", "");
-        
-        // This is a simplified approach - normally you'd validate JWT token
-        // and extract username from the token claims
-        String username = extractUsernameFromToken(token);
-        
-        User user = findByUsername(username);
-        if (user == null || !(user instanceof Gamer)) {
-            throw new RuntimeException("Gamer not found or not authorized");
+        try {
+            // JWT 토큰에서 Bearer 제거
+            String token = authHeader.replace("Bearer ", "");
+            
+            // JWT 토큰 유효성 검증
+            if (!jwtTokenService.isTokenValid(token)) {
+                throw new RuntimeException("Invalid or expired token");
+            }
+            
+            // JWT에서 UID 추출
+            Long userId = jwtTokenService.extractUserId(token);
+            
+            // UID로 사용자 조회
+            User user = findByUid(userId);
+            if (user == null || !(user instanceof Gamer)) {
+                throw new RuntimeException("Gamer not found or not authorized");
+            }
+            
+            return user.getUid();
+        } catch (Exception e) {
+            throw new RuntimeException("Authentication failed: " + e.getMessage());
         }
-        
-        return user.getUid();
     }
     
-    private String extractUsernameFromToken(String token) {
-        // Simplified token extraction - in real app, use JWT library
-        // For testing purposes, we'll assume token contains username directly
-        // In production, implement proper JWT token parsing
-        return token;
+    public Long getUserIdFromToken(String authHeader) {
+        try {
+            // JWT 토큰에서 Bearer 제거
+            String token = authHeader.replace("Bearer ", "");
+            
+            // JWT 토큰 유효성 검증
+            if (!jwtTokenService.isTokenValid(token)) {
+                throw new RuntimeException("Invalid or expired token");
+            }
+            
+            // JWT에서 UID 추출
+            return jwtTokenService.extractUserId(token);
+        } catch (Exception e) {
+            throw new RuntimeException("Authentication failed: " + e.getMessage());
+        }
     }
 }

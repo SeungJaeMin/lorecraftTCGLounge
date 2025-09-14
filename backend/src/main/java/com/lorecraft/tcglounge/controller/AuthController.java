@@ -7,7 +7,7 @@ import com.lorecraft.tcglounge.entity.Gamer;
 import com.lorecraft.tcglounge.entity.Admin;
 import com.lorecraft.tcglounge.entity.StoreOwner;
 import com.lorecraft.tcglounge.service.AuthService;
-import com.lorecraft.tcglounge.util.JwtTokenProvider;
+import com.lorecraft.tcglounge.service.JwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +24,7 @@ public class AuthController {
     private AuthService authService;
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtTokenService jwtTokenService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest) {
@@ -38,8 +38,8 @@ public class AuthController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // JWT 토큰 생성 - userid를 사용
-            String token = jwtTokenProvider.generateToken(user.getUserid());
+            // JWT 토큰 생성 - 새 JWT 서비스 사용
+            String token = authService.generateJwtToken(user);
             
             // 사용자 타입 결정
             String userType = determineUserType(user);
@@ -85,16 +85,25 @@ public class AuthController {
         try {
             // Bearer 토큰에서 실제 토큰 추출
             String jwtToken = token.replace("Bearer ", "");
-            String username = jwtTokenProvider.getUsernameFromToken(jwtToken);
             
-            if (username == null || !jwtTokenProvider.validateToken(jwtToken)) {
+            if (!jwtTokenService.isTokenValid(jwtToken)) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
                 response.put("message", "유효하지 않은 토큰입니다.");
                 return ResponseEntity.badRequest().body(response);
             }
             
-            User user = authService.findByUsername(username);
+            // JWT에서 UID 추출하여 사용자 조회
+            Long userId = jwtTokenService.extractUserId(jwtToken);
+            User user = authService.findByUid(userId);
+            
+            if (user == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "사용자를 찾을 수 없습니다.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
             String userType = determineUserType(user);
             
             Map<String, Object> userData = new HashMap<>();

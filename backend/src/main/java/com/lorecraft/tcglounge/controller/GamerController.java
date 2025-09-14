@@ -3,7 +3,7 @@ package com.lorecraft.tcglounge.controller;
 import com.lorecraft.tcglounge.dto.GamerProfileDTO;
 import com.lorecraft.tcglounge.entity.Gamer;
 import com.lorecraft.tcglounge.repository.GamerRepository;
-import com.lorecraft.tcglounge.util.JwtTokenProvider;
+import com.lorecraft.tcglounge.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,24 +19,16 @@ public class GamerController {
     private GamerRepository gamerRepository;
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private AuthService authService;
 
     @GetMapping("/profile")
     public ResponseEntity<?> getGamerProfile(@RequestHeader("Authorization") String token) {
         try {
-            // JWT 토큰에서 사용자명 추출
-            String jwtToken = token.replace("Bearer ", "");
-            String username = jwtTokenProvider.getUsernameFromToken(jwtToken);
+            // JWT에서 Gamer ID 추출 - AuthService 사용
+            Long gamerId = authService.getGamerIdFromToken(token);
             
-            if (username == null || !jwtTokenProvider.validateToken(jwtToken)) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "유효하지 않은 토큰입니다.");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            // 게이머 정보 조회
-            Optional<Gamer> gamerOpt = gamerRepository.findByUserid(username);
+            // 게이머 정보 조회 - UID로 직접 조회
+            Optional<Gamer> gamerOpt = gamerRepository.findById(gamerId);
             
             if (!gamerOpt.isPresent()) {
                 Map<String, Object> response = new HashMap<>();
@@ -65,19 +57,11 @@ public class GamerController {
     @GetMapping("/dashboard")
     public ResponseEntity<?> getGamerDashboard(@RequestHeader("Authorization") String token) {
         try {
-            // JWT 토큰에서 사용자명 추출
-            String jwtToken = token.replace("Bearer ", "");
-            String username = jwtTokenProvider.getUsernameFromToken(jwtToken);
+            // JWT에서 Gamer ID 추출 - AuthService 사용
+            Long gamerId = authService.getGamerIdFromToken(token);
             
-            if (username == null || !jwtTokenProvider.validateToken(jwtToken)) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "유효하지 않은 토큰입니다.");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            // 게이머 정보 조회
-            Optional<Gamer> gamerOpt = gamerRepository.findByUserid(username);
+            // 게이머 정보 조회 - UID로 직접 조회
+            Optional<Gamer> gamerOpt = gamerRepository.findById(gamerId);
             
             if (!gamerOpt.isPresent()) {
                 Map<String, Object> response = new HashMap<>();
