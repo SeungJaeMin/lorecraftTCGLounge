@@ -59,9 +59,12 @@ export interface Card {
   cardId: number;
   cardName: string;
   cardImg?: string;
+  cardDescription?: string;
   description?: string;
   cardColor: 'RED' | 'BLUE' | 'GREEN' | 'YELLOW' | 'BLACK' | 'COLORLESS';
+  cardType: 'LEADER' | 'UNIT' | 'SKILL' | 'ITEM' | 'FIELD';
   rarity: 'COMMON' | 'RARE' | 'SUPER_RARE' | 'ULTRA_RARE' | 'SECRET_RARE' | 'LEGENDARY';
+  manaCost?: number;
   cost?: number;
   cardNumber?: string;
   burstSlot1?: number;
@@ -119,6 +122,23 @@ export const cardApi = {
   initSampleData: async (): Promise<{success: boolean, message: string, cardsCreated?: number}> => {
     const response = await api.post('/cards/init-sample-data');
     return response.data;
+  },
+};
+
+// DeckEditor에서 사용하는 cardAPI 별칭
+export const cardAPI = {
+  // 모든 카드 조회
+  getAllCards: async () => {
+    const response = await api.get('/cards');
+    return response;
+  },
+
+  // 카드 검색
+  searchCards: async (query: string) => {
+    const response = await api.get('/cards/search', {
+      params: { name: query }
+    });
+    return response;
   },
 };
 
