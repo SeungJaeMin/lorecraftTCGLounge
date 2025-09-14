@@ -1,6 +1,7 @@
 package com.lorecraft.tcglounge.service;
 
 import com.lorecraft.tcglounge.entity.User;
+import com.lorecraft.tcglounge.entity.Gamer;
 import com.lorecraft.tcglounge.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,5 +51,29 @@ public class AuthService {
         user.setIsActive(true);
         
         return userRepository.save(user);
+    }
+
+    public Long getGamerIdFromToken(String authHeader) {
+        // Simple implementation - in real app, you'd decode JWT token
+        // For now, we'll extract username from auth header and get gamer ID
+        String token = authHeader.replace("Bearer ", "");
+        
+        // This is a simplified approach - normally you'd validate JWT token
+        // and extract username from the token claims
+        String username = extractUsernameFromToken(token);
+        
+        User user = findByUsername(username);
+        if (user == null || !(user instanceof Gamer)) {
+            throw new RuntimeException("Gamer not found or not authorized");
+        }
+        
+        return user.getUid();
+    }
+    
+    private String extractUsernameFromToken(String token) {
+        // Simplified token extraction - in real app, use JWT library
+        // For testing purposes, we'll assume token contains username directly
+        // In production, implement proper JWT token parsing
+        return token;
     }
 }
