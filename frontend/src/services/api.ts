@@ -172,6 +172,27 @@ export const authAPI = {
   }
 };
 
+// 사용자 관련 API
+export const userAPI = {
+  // 사용자 프로필 조회
+  getUserProfile: async (userId: number) => {
+    const response = await api.get(`/users/${userId}`);
+    return response;
+  },
+
+  // 사용자 프로필 업데이트
+  updateProfile: async (userId: number, profileData: { nickname?: string; email?: string }) => {
+    const response = await api.put(`/users/${userId}/profile`, profileData);
+    return response;
+  },
+
+  // 비밀번호 변경
+  changePassword: async (userId: number, passwordData: { currentPassword: string; newPassword: string }) => {
+    const response = await api.put(`/users/${userId}/password`, passwordData);
+    return response;
+  }
+};
+
 // 게이머 관련 API
 export const gamerAPI = {
   // 게이머 프로필 조회

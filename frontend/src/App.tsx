@@ -15,6 +15,10 @@ import EventPage from './pages/EventPage';
 import TournamentPage from './pages/TournamentPage';
 import RankingPage from './pages/RankingPage';
 import ImageUploadTest from './pages/ImageUploadTest';
+import MyPage from './pages/MyPage';
+import MyDecks from './pages/MyDecks';
+import DeckEditor from './pages/DeckEditor';
+import ProfileEdit from './pages/ProfileEdit';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const theme = createTheme({
@@ -89,6 +93,40 @@ function App() {
               element={
                 <ProtectedRoute requiredUserType="ADMIN">
                   <AdminPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* 사용자 관련 페이지 - 로그인 필요 */}
+            <Route 
+              path="/my-page" 
+              element={
+                <ProtectedRoute>
+                  <MyPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/my-decks" 
+              element={
+                <ProtectedRoute>
+                  <MyDecks />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/deck-editor/:deckId" 
+              element={
+                <ProtectedRoute>
+                  <DeckEditor />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile-edit" 
+              element={
+                <ProtectedRoute>
+                  <ProfileEdit />
                 </ProtectedRoute>
               } 
             />

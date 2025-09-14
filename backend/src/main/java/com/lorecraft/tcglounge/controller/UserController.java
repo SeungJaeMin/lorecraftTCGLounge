@@ -57,4 +57,60 @@ public class UserController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+    
+    @PutMapping("/{id}/profile")
+    public ResponseEntity<Map<String, Object>> updateUserProfile(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request) {
+        try {
+            String nickname = request.get("nickname");
+            String email = request.get("email");
+            
+            User user = userService.updateUserProfile(id, nickname, email);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Profile updated successfully");
+            response.put("user", user);
+            
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+    
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Map<String, Object>> changePassword(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request) {
+        try {
+            String currentPassword = request.get("currentPassword");
+            String newPassword = request.get("newPassword");
+            
+            if (currentPassword == null || newPassword == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "Current password and new password are required");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            userService.changePassword(id, currentPassword, newPassword);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Password changed successfully");
+            
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 }
