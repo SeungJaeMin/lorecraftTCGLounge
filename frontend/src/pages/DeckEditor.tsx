@@ -124,7 +124,9 @@ const DeckEditor: React.FC = () => {
         if (response.data.success) {
           deckToSave = response.data.deck;
           setDeck(deckToSave);
-          navigate(`/deck-editor/${deckToSave.id}`, { replace: true });
+          if (deckToSave?.id) {
+            navigate(`/deck-editor/${deckToSave.id}`, { replace: true });
+          }
         } else {
           throw new Error(response.data.message);
         }
@@ -143,7 +145,7 @@ const DeckEditor: React.FC = () => {
       }
 
       // Update stats after save
-      if (deckToSave) {
+      if (deckToSave?.id) {
         const statsResponse = await deckAPI.getDeckStats(deckToSave.id);
         if (statsResponse.data.success) {
           setDeckStats(statsResponse.data.stats);

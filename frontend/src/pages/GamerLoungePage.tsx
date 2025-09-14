@@ -16,6 +16,7 @@ interface NavCategory {
 const GamerLoungePage: React.FC = () => {
   const navigate = useNavigate();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [clickedDropdown, setClickedDropdown] = useState<string | null>(null);
   const [userData, setUserData] = useState({
     nickname: '게이머',
     profileImage: null as string | null
@@ -57,7 +58,8 @@ const GamerLoungePage: React.FC = () => {
     mypage: {
       title: '마이페이지',
       items: [
-        { label: '내 정보 보기', path: '/my-info' },
+        { label: '마이페이지', path: '/my-page' },
+        { label: '프로필 수정', path: '/profile-edit' },
         { label: '내 대회 보기', path: '/my-tournaments' },
         { label: '도전과제 & 칭호', path: '/achievements' }
       ]
@@ -84,7 +86,7 @@ const GamerLoungePage: React.FC = () => {
 
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setActiveDropdown(null);
+        setClickedDropdown(null);
       }
     };
 
@@ -94,17 +96,17 @@ const GamerLoungePage: React.FC = () => {
     };
   }, []);
 
-  const handleNavHover = (category: string) => {
-    setActiveDropdown(category);
+  const handleNavButtonClick = (category: string) => {
+    if (clickedDropdown === category) {
+      setClickedDropdown(null);
+    } else {
+      setClickedDropdown(category);
+    }
   };
 
-  const handleNavLeave = () => {
-    setActiveDropdown(null);
-  };
-
-  const handleNavClick = (path: string) => {
+  const handleNavItemClick = (path: string) => {
     navigate(path);
-    setActiveDropdown(null);
+    setClickedDropdown(null);
   };
 
   const handleLogout = async () => {
@@ -133,19 +135,21 @@ const GamerLoungePage: React.FC = () => {
               <div
                 key={key}
                 className="nav-item"
-                onMouseEnter={() => handleNavHover(key)}
-                onMouseLeave={handleNavLeave}
               >
-                <button className="nav-button">
+                <button 
+                  className={`nav-button ${clickedDropdown === key ? 'active' : ''}`}
+                  onClick={() => handleNavButtonClick(key)}
+                >
                   {navCategories[key].title}
+                  <span className="dropdown-arrow">▼</span>
                 </button>
-                {activeDropdown === key && (
+                {clickedDropdown === key && (
                   <div className="dropdown-menu">
                     {navCategories[key].items.map((item) => (
                       <button
                         key={item.path}
                         className="dropdown-item"
-                        onClick={() => handleNavClick(item.path)}
+                        onClick={() => handleNavItemClick(item.path)}
                       >
                         {item.label}
                       </button>
@@ -181,28 +185,10 @@ const GamerLoungePage: React.FC = () => {
           <h2>환영합니다, {userData.nickname}님!</h2>
           <p>게이머 라운지에서 덱을 관리하고 대회에 참가해보세요.</p>
         </div>
-
-        <div className="quick-access">
-          <h3>빠른 메뉴</h3>
-          <div className="quick-menu-grid">
-            {Object.keys(navCategories).map((key) => (
-              <div key={key} className="quick-menu-category">
-                <h4>{navCategories[key].title}</h4>
-                <ul>
-                  {navCategories[key].items.map((item) => (
-                    <li key={item.path}>
-                      <button 
-                        className="quick-link"
-                        onClick={() => handleNavClick(item.path)}
-                      >
-                        {item.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+        
+        {/* 메인 컨텐츠 영역 - 현재 비어있음 */}
+        <div className="main-content-area">
+          {/* 추후 컨텐츠 추가 예정 */}
         </div>
       </main>
     </div>
