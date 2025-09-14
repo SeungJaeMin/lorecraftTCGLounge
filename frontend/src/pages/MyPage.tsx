@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gamerAPI } from '../services/api';
+import GamerLoungeNavigation from '../components/GamerLoungeNavigation';
 import './MyPage.css';
 
 interface UserProfile {
@@ -108,6 +109,7 @@ const MyPage: React.FC = () => {
 
   return (
     <div className="mypage">
+      <GamerLoungeNavigation />
       <div className="mypage-container">
         <h1 className="mypage-title">마이페이지</h1>
 

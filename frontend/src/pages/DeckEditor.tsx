@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { deckAPI, cardAPI, Card, Deck, DeckDetail, DeckStats } from '../services/api';
+import GamerLoungeNavigation from '../components/GamerLoungeNavigation';
 import './DeckEditor.css';
 
 interface DeckCard extends DeckDetail {
@@ -323,6 +324,7 @@ const DeckEditor: React.FC = () => {
 
   return (
     <div className="deck-editor">
+      <GamerLoungeNavigation />
       {/* Fixed Deck Parameters Header */}
       <div className="deck-params-header">
         <div className="deck-params-container">

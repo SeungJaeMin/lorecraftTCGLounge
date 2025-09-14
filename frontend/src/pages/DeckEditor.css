@@ -8,7 +8,7 @@
 /* Fixed Deck Parameters Header */
 .deck-params-header {
   position: sticky;
-  top: 0;
+  top: 70px; /* GamerLoungeNavigation 높이만큼 아래로 */
   z-index: 100;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);

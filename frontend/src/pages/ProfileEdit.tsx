@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userAPI, authAPI } from '../services/api';
+import GamerLoungeNavigation from '../components/GamerLoungeNavigation';
 import './ProfileEdit.css';
 
 interface User {
@@ -184,6 +185,7 @@ const ProfileEdit: React.FC = () => {
 
   return (
     <div className="profile-edit">
+      <GamerLoungeNavigation />
       <div className="profile-edit-container">
         <div className="profile-edit-header">
           <button onClick={handleGoBack} className="back-button">

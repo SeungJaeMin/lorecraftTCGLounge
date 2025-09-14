@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { deckAPI } from '../services/api';
+import GamerLoungeNavigation from '../components/GamerLoungeNavigation';
 import './MyDecks.css';
 
 interface Deck {
@@ -124,6 +125,7 @@ const MyDecks: React.FC = () => {
 
   return (
     <div className="mydecks">
+      <GamerLoungeNavigation />
       <div className="mydecks-container">
         <div className="mydecks-header">
           <h1>내 덱 목록</h1>
