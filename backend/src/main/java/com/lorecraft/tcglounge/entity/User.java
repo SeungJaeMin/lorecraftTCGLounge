@@ -79,4 +79,10 @@ public class User {
     public void setRegisterDate(LocalDateTime registerDate) { this.registerDate = registerDate; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+    public void setUserType(String userType) { this.userType = userType; }
+    
+    // UserType enum
+    public enum UserType {
+        GAMER, ADMIN, STORE_OWNER
+    }
 }

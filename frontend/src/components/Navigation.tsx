@@ -234,26 +234,14 @@ const Navigation: React.FC<NavigationProps> = ({ onLoginClick }) => {
                     onChange={(e) => setSearchType(e.target.value)}
                   >
                     <MenuItem value="all">전체</MenuItem>
-                    <MenuItem value="UNIT">유닛</MenuItem>
-                    <MenuItem value="SPELL">마법</MenuItem>
                     <MenuItem value="LEADER">리더</MenuItem>
+                    <MenuItem value="UNIT">유닛</MenuItem>
+                    <MenuItem value="SPELL">스펠</MenuItem>
+                    <MenuItem value="ITEM">아이템</MenuItem>
+                    <MenuItem value="FIELD">필드</MenuItem>
                   </Select>
                 </FormControl>
                 
-                <FormControl size="small" sx={{ minWidth: 120 }}>
-                  <InputLabel>희귀도</InputLabel>
-                  <Select 
-                    label="희귀도"
-                    value={searchRarity}
-                    onChange={(e) => setSearchRarity(e.target.value)}
-                  >
-                    <MenuItem value="all">전체</MenuItem>
-                    <MenuItem value="COMMON">일반</MenuItem>
-                    <MenuItem value="RARE">희귀</MenuItem>
-                    <MenuItem value="LEGENDARY">전설</MenuItem>
-                  </Select>
-                </FormControl>
-
                 <FormControl size="small" sx={{ minWidth: 120 }}>
                   <InputLabel>색상</InputLabel>
                   <Select 
@@ -265,6 +253,22 @@ const Navigation: React.FC<NavigationProps> = ({ onLoginClick }) => {
                     <MenuItem value="RED">빨강</MenuItem>
                     <MenuItem value="BLUE">파랑</MenuItem>
                     <MenuItem value="GREEN">초록</MenuItem>
+                    <MenuItem value="BLACK">검정</MenuItem>
+                    <MenuItem value="YELLOW">노랑</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>희귀도</InputLabel>
+                  <Select 
+                    label="희귀도"
+                    value={searchRarity}
+                    onChange={(e) => setSearchRarity(e.target.value)}
+                  >
+                    <MenuItem value="all">전체</MenuItem>
+                    <MenuItem value="COMMON">일반</MenuItem>
+                    <MenuItem value="RARE">희귀</MenuItem>
+                    <MenuItem value="LEGENDARY">전설</MenuItem>
                   </Select>
                 </FormControl>
               </Box>

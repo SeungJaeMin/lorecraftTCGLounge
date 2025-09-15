@@ -84,6 +84,69 @@ public class DeckService {
         return deckRepository.save(deck);
     }
     
+    public CardDeck saveOrUpdateDeck(Long deckId, Long gamerId, String deckName, String description, Boolean isPublic) {
+        if (deckId == null || deckId == 0) {
+            // Create new deck
+            return createDeck(gamerId, deckName, description);
+        } else {
+            // Try to update existing deck
+            Optional<CardDeck> existingDeck = getDeckById(deckId, gamerId);
+            if (existingDeck.isPresent()) {
+                // Update existing deck
+                CardDeck deck = existingDeck.get();
+                if (deckName != null) deck.setDeckName(deckName);
+                if (description != null) deck.setDescription(description);
+                if (isPublic != null) deck.setIsPublic(isPublic);
+                return deckRepository.save(deck);
+            } else {
+                // Deck doesn't exist or doesn't belong to user, create new one
+                return createDeck(gamerId, deckName, description);
+            }
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void updateDeckCards(Long deckId, Long gamerId, List<?> cardsList) {
+        CardDeck deck = getDeckById(deckId, gamerId)
+            .orElseThrow(() -> new RuntimeException("Deck not found: " + deckId));
+        
+        // 기존 덱 카드들 모두 삭제
+        deckDetailRepository.deleteByDeck(deck);
+        
+        // 새로운 카드들 추가
+        int orderIndex = 1;
+        for (Object cardObj : cardsList) {
+            if (cardObj instanceof Map) {
+                Map<String, Object> cardData = (Map<String, Object>) cardObj;
+                Map<String, Object> cardInfo = (Map<String, Object>) cardData.get("card");
+                
+                if (cardInfo != null) {
+                    Long cardId = Long.valueOf(cardInfo.get("cardId").toString());
+                    Integer quantity = Integer.valueOf(cardData.get("quantity").toString());
+                    
+                    Card card = cardRepository.findById(cardId)
+                        .orElseThrow(() -> new RuntimeException("Card not found: " + cardId));
+                    
+                    // DeckDetail 생성
+                    DeckDetail deckDetail = new DeckDetail(deck, card, quantity);
+                    deckDetail.setOrderIndex(orderIndex++);
+                    deckDetailRepository.save(deckDetail);
+                    
+                    // 리더 카드 설정
+                    if ("LEADER".equals(card.getCardType()) && deck.getLeaderCard() == null) {
+                        deck.setLeaderCard(card);
+                    }
+                }
+            }
+        }
+        
+        // 덱 총 카드 수 업데이트
+        deck.updateTotalCards();
+        deckRepository.save(deck);
+        
+        log.info("Updated deck cards for deck: {} with {} card types", deckId, cardsList.size());
+    }
+    
     public void deleteDeck(Long deckId, Long gamerId) {
         CardDeck deck = getDeckById(deckId, gamerId)
             .orElseThrow(() -> new RuntimeException("Deck not found: " + deckId));

@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping("/api/v1/decks")
+@RequestMapping("/v1/decks")
 @CrossOrigin(origins = "http://localhost:3000")
 public class DeckController {
     
@@ -128,6 +128,69 @@ public class DeckController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error updating deck: " + deckId, e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+    
+    @PostMapping("/save")
+    public ResponseEntity<Map<String, Object>> saveOrUpdateDeck(
+            @RequestBody Map<String, Object> request,
+            @RequestHeader("Authorization") String authHeader) {
+        try {
+            Long gamerId = authService.getGamerIdFromToken(authHeader);
+            Long deckId = request.get("deckId") != null ? Long.valueOf(request.get("deckId").toString()) : null;
+            String deckName = (String) request.get("deckName");
+            String description = (String) request.get("description");
+            Boolean isPublic = request.get("isPublic") != null ? Boolean.valueOf(request.get("isPublic").toString()) : false;
+            
+            CardDeck savedDeck = deckService.saveOrUpdateDeck(deckId, gamerId, deckName, description, isPublic);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("deck", savedDeck);
+            response.put("message", deckId == null ? "Deck created successfully" : "Deck updated successfully");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error saving deck", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/save-with-cards")
+    public ResponseEntity<Map<String, Object>> saveDeckWithCards(
+            @RequestBody Map<String, Object> request,
+            @RequestHeader("Authorization") String authHeader) {
+        try {
+            Long gamerId = authService.getGamerIdFromToken(authHeader);
+            Long deckId = request.get("deckId") != null ? Long.valueOf(request.get("deckId").toString()) : null;
+            String deckName = (String) request.get("deckName");
+            String description = (String) request.get("description");
+            Boolean isPublic = request.get("isPublic") != null ? Boolean.valueOf(request.get("isPublic").toString()) : false;
+            
+            // 덱과 카드 목록 저장
+            CardDeck savedDeck = deckService.saveOrUpdateDeck(deckId, gamerId, deckName, description, isPublic);
+            
+            // 카드 목록이 포함된 경우 처리
+            List<?> cardsList = (List<?>) request.get("cards");
+            if (cardsList != null && !cardsList.isEmpty()) {
+                deckService.updateDeckCards(savedDeck.getDeckId(), gamerId, cardsList);
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("deck", savedDeck);
+            response.put("message", deckId == null ? "Deck and cards created successfully" : "Deck and cards updated successfully");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error saving deck with cards", e);
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", e.getMessage());

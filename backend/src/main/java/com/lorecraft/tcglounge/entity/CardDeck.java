@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class CardDeck {
     private Long deckId;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gamer_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private Gamer gamer;
     
     @Column(name = "deck_name", nullable = false)
@@ -64,6 +65,7 @@ public class CardDeck {
     private LocalDateTime updatedAt;
     
     @OneToMany(mappedBy = "deck", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<DeckDetail> deckDetails = new ArrayList<>();
     
     public CardDeck() {}

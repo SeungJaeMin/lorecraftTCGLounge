@@ -37,7 +37,6 @@ interface Tournament {
 
 const MyPage: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'profile' | 'record'>('profile');
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [myDecks, setMyDecks] = useState<DeckInfo[]>([]);
@@ -70,7 +69,7 @@ const MyPage: React.FC = () => {
   };
 
   const handleCreateDeck = () => {
-    navigate('/deck-editor/new');
+    navigate('/deck-editor');
   };
 
   const handleViewAllDecks = () => {
@@ -107,79 +106,97 @@ const MyPage: React.FC = () => {
   const ongoingTournaments = tournaments.filter(t => t.status === 'ONGOING');
   const completedTournaments = tournaments.filter(t => t.status === 'COMPLETED');
 
+  // 랭크 결정 함수
+  const getRankInfo = (rating: number) => {
+    if (rating >= 2000) return { rank: 'LEGEND', name: '전설', color: '#ff6b35', icon: '👑' };
+    if (rating >= 1500) return { rank: 'DIAMOND', name: '다이아몬드', color: '#00d4ff', icon: '💎' };
+    if (rating >= 1200) return { rank: 'GOLD', name: '골드', color: '#ffd700', icon: '🥇' };
+    if (rating >= 800) return { rank: 'SILVER', name: '실버', color: '#c0c0c0', icon: '🥈' };
+    return { rank: 'BRONZE', name: '브론즈', color: '#cd7f32', icon: '🥉' };
+  };
+
+  const rankInfo = userProfile ? getRankInfo(userProfile.currentRating) : null;
+
   return (
     <div className="mypage">
       <GamerLoungeNavigation />
       <div className="mypage-container">
         <h1 className="mypage-title">마이페이지</h1>
 
-        {/* 상단 탭 */}
-        <div className="info-section">
-          <div className="tab-header">
-            <button 
-              className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
-              onClick={() => setActiveTab('profile')}
-            >
-              내 기본정보
-            </button>
-            <button 
-              className={`tab-button ${activeTab === 'record' ? 'active' : ''}`}
-              onClick={() => setActiveTab('record')}
-            >
-              내 전적
-            </button>
-          </div>
-
-          <div className="tab-content">
-            {activeTab === 'profile' && (
-              <div className="profile-info">
-                <div className="info-item">
-                  <label>닉네임:</label>
-                  <span>{userProfile.nickname}</span>
-                </div>
-                <div className="info-item">
-                  <label>이메일:</label>
-                  <span>{userProfile.email}</span>
-                </div>
-                <div className="info-item">
-                  <label>보유 포인트:</label>
-                  <span className="points">{userProfile.usablePoint?.toLocaleString() || 0} P</span>
-                </div>
-                <button className="detail-button" onClick={handleViewProfile}>
-                  자세히보기
-                </button>
+        {/* 랭크 정보 섹션 */}
+        <div className="rank-section">
+          <div className="rank-card">
+            <div className="rank-header">
+              <div className="rank-icon-container">
+                <span className="rank-icon">{rankInfo?.icon}</span>
               </div>
-            )}
-
-            {activeTab === 'record' && (
-              <div className="record-info">
-                <div className="stats-grid">
-                  <div className="stat-item wins">
-                    <div className="stat-number">{userProfile.totalWins}</div>
-                    <div className="stat-label">승리</div>
-                  </div>
-                  <div className="stat-item losses">
-                    <div className="stat-number">{userProfile.totalLosses}</div>
-                    <div className="stat-label">패배</div>
-                  </div>
-                  <div className="stat-item draws">
-                    <div className="stat-number">{userProfile.totalDraws}</div>
-                    <div className="stat-label">무승부</div>
-                  </div>
-                  <div className="stat-item winrate">
-                    <div className="stat-number">{Math.round(userProfile.winRate)}%</div>
-                    <div className="stat-label">승률</div>
-                  </div>
-                </div>
-                <div className="rating-info">
-                  <label>현재 레이팅:</label>
-                  <span className="rating">{userProfile.currentRating} RP</span>
-                </div>
-                <button className="detail-button" onClick={handleViewRecord}>
-                  자세히보기
-                </button>
+              <div className="rank-info">
+                <h2 className="rank-title" style={{ color: rankInfo?.color }}>
+                  {rankInfo?.name}
+                </h2>
+                <p className="rating-points">{userProfile?.currentRating || 0} RP</p>
               </div>
-            )}
+              <div className="rank-progress">
+                <div className="progress-bar">
+                  <div 
+                    className="progress-fill" 
+                    style={{ 
+                      width: `${Math.min(((userProfile?.currentRating || 0) % 300) / 300 * 100, 100)}%`,
+                      background: rankInfo?.color 
+                    }}
+                  ></div>
+                </div>
+                <span className="progress-text">다음 랭크까지</span>
+              </div>
+            </div>
+            
+            <div className="player-stats">
+              <div className="player-info">
+                <div className="info-card">
+                  <h3>플레이어 정보</h3>
+                  <div className="info-grid">
+                    <div className="info-item">
+                      <span className="info-label">닉네임</span>
+                      <span className="info-value">{userProfile?.nickname}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">이메일</span>
+                      <span className="info-value">{userProfile?.email}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">보유 포인트</span>
+                      <span className="info-value points">{userProfile?.usablePoint?.toLocaleString() || 0} P</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="battle-stats">
+                <div className="stats-card">
+                  <h3>전투 통계</h3>
+                  <div className="stats-grid">
+                    <div className="stat-circle wins">
+                      <div className="stat-number">{userProfile?.totalWins || 0}</div>
+                      <div className="stat-label">승리</div>
+                    </div>
+                    <div className="stat-circle losses">
+                      <div className="stat-number">{userProfile?.totalLosses || 0}</div>
+                      <div className="stat-label">패배</div>
+                    </div>
+                    <div className="stat-circle draws">
+                      <div className="stat-number">{userProfile?.totalDraws || 0}</div>
+                      <div className="stat-label">무승부</div>
+                    </div>
+                  </div>
+                  <div className="winrate-display">
+                    <div className="winrate-circle">
+                      <span className="winrate-percentage">{Math.round(userProfile?.winRate || 0)}%</span>
+                      <span className="winrate-label">승률</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

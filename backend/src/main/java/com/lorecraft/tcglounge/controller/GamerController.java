@@ -2,11 +2,15 @@ package com.lorecraft.tcglounge.controller;
 
 import com.lorecraft.tcglounge.dto.GamerProfileDTO;
 import com.lorecraft.tcglounge.entity.Gamer;
+import com.lorecraft.tcglounge.entity.CardDeck;
 import com.lorecraft.tcglounge.repository.GamerRepository;
 import com.lorecraft.tcglounge.service.AuthService;
+import com.lorecraft.tcglounge.service.DeckService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -15,11 +19,16 @@ import java.util.*;
 @CrossOrigin(origins = "http://localhost:3000")
 public class GamerController {
 
+    private static final Logger log = LoggerFactory.getLogger(GamerController.class);
+
     @Autowired
     private GamerRepository gamerRepository;
 
     @Autowired
     private AuthService authService;
+    
+    @Autowired
+    private DeckService deckService;
 
     @GetMapping("/profile")
     public ResponseEntity<?> getGamerProfile(@RequestHeader("Authorization") String token) {
@@ -79,13 +88,38 @@ public class GamerController {
             GamerProfileDTO profile = new GamerProfileDTO(gamer);
             dashboardData.put("profile", profile);
             
-            // TODO: 실제 데이터로 교체 필요
-            // 덱 정보 (Mock 데이터)
-            List<Map<String, Object>> decks = Arrays.asList(
-                createMockDeck(1L, "메인 덱", 15, 25, "2시간 전"),
-                createMockDeck(2L, "실험 덱", 8, 12, "1일 전"),
-                createMockDeck(3L, "대회용 덱", 22, 30, "3일 전")
-            );
+            // 실제 덱 정보 조회
+            List<CardDeck> userDecks = deckService.getGamerDecks(gamerId);
+            List<Map<String, Object>> decks = new ArrayList<>();
+            
+            for (CardDeck deck : userDecks) {
+                Map<String, Object> deckData = new HashMap<>();
+                deckData.put("id", deck.getDeckId());
+                deckData.put("deckName", deck.getDeckName());
+                deckData.put("description", deck.getDescription());
+                deckData.put("totalCards", deck.getTotalCards());
+                deckData.put("isComplete", deck.getTotalCards() >= 40);
+                deckData.put("isPublic", deck.getIsPublic());
+                deckData.put("isTournamentLegal", deck.getIsTournamentLegal());
+                deckData.put("updatedAt", deck.getUpdatedAt());
+                
+                // Leader card info if exists (safely handle lazy loading)
+                try {
+                    if (deck.getLeaderCard() != null) {
+                        Map<String, Object> leaderInfo = new HashMap<>();
+                        leaderInfo.put("cardId", deck.getLeaderCard().getCardId());
+                        leaderInfo.put("cardName", deck.getLeaderCard().getCardName());
+                        leaderInfo.put("cardColor", deck.getLeaderCard().getCardColor().toString());
+                        leaderInfo.put("cardType", deck.getLeaderCard().getCardType());
+                        deckData.put("leaderCard", leaderInfo);
+                    }
+                } catch (Exception e) {
+                    // Skip leader card info if lazy loading fails
+                    log.warn("Failed to load leader card for deck {}: {}", deck.getDeckId(), e.getMessage());
+                }
+                
+                decks.add(deckData);
+            }
             dashboardData.put("myDecks", decks);
             
             // 최근 매치 (Mock 데이터)

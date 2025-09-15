@@ -47,6 +47,7 @@ public class TestAuthController {
                 gamer.setIsActive(true);
                 gamer.setNickname("테스트게이머");
                 gamer.setPhoneNumber("010-1234-5678");
+                gamer.setUserType(User.UserType.GAMER.name());
                 gamerRepository.save(gamer);
             }
 
@@ -59,6 +60,7 @@ public class TestAuthController {
                 gamer.setIsActive(true);
                 gamer.setNickname("프로게이머");
                 gamer.setPhoneNumber("010-2345-6789");
+                gamer.setUserType(User.UserType.GAMER.name());
                 gamerRepository.save(gamer);
             }
 
@@ -73,6 +75,7 @@ public class TestAuthController {
                 admin.setPhoneNumber("010-9999-0000");
                 admin.setEmployeeId("EMP001");
                 admin.setDepartment("IT관리부");
+                admin.setUserType(User.UserType.ADMIN.name());
                 adminRepository.save(admin);
             }
 
@@ -88,6 +91,7 @@ public class TestAuthController {
                 storeOwner.setStoreName("ESTELA 강남점");
                 storeOwner.setStoreLocation("서울시 강남구");
                 storeOwner.setContactNumber("02-1234-5678");
+                storeOwner.setUserType(User.UserType.STORE_OWNER.name());
                 storeOwnerRepository.save(storeOwner);
             }
 

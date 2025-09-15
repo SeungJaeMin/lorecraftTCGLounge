@@ -7,11 +7,75 @@ const api = axios.create({
   timeout: 10000,
 });
 
+// Enhanced token management
+interface TokenInfo {
+  token: string;
+  expiresAt: number;
+  refreshToken?: string;
+}
+
+class TokenManager {
+  private static readonly TOKEN_KEY = 'tcg_lounge_token';
+  private static readonly USER_KEY = 'tcg_lounge_user';
+  private static readonly TOKEN_INFO_KEY = 'tcg_lounge_token_info';
+  
+  static setToken(token: string, expiresIn?: number): void {
+    localStorage.setItem(this.TOKEN_KEY, token);
+    
+    if (expiresIn) {
+      const tokenInfo: TokenInfo = {
+        token,
+        expiresAt: Date.now() + (expiresIn * 1000) // Convert to milliseconds
+      };
+      localStorage.setItem(this.TOKEN_INFO_KEY, JSON.stringify(tokenInfo));
+    }
+  }
+  
+  static getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+  
+  static isTokenExpired(): boolean {
+    const tokenInfo = this.getTokenInfo();
+    if (!tokenInfo || !tokenInfo.expiresAt) {
+      return false; // No expiration info, assume valid
+    }
+    
+    // Check if token expires within the next 5 minutes (for refresh)
+    return Date.now() >= (tokenInfo.expiresAt - 5 * 60 * 1000);
+  }
+  
+  static getTokenInfo(): TokenInfo | null {
+    const info = localStorage.getItem(this.TOKEN_INFO_KEY);
+    return info ? JSON.parse(info) : null;
+  }
+  
+  static clearToken(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    localStorage.removeItem(this.TOKEN_INFO_KEY);
+  }
+  
+  static shouldRedirect(): boolean {
+    const currentPath = window.location.pathname;
+    const protectedPaths = ['/my-page', '/deck-editor', '/my-decks', '/gamer-lounge'];
+    const isProtectedPath = protectedPaths.some(path => currentPath.includes(path));
+    const isAuthPage = currentPath.includes('/auth') || currentPath === '/';
+    
+    return isProtectedPath && !isAuthPage;
+  }
+}
+
 // Request interceptor to add JWT token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('tcg_lounge_token');
+    const token = TokenManager.getToken();
     if (token) {
+      // Check if token is about to expire
+      if (TokenManager.isTokenExpired()) {
+        console.warn('Token is about to expire. Consider implementing token refresh.');
+        // In a production environment, you might want to refresh the token here
+      }
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -28,12 +92,13 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('tcg_lounge_token');
-      localStorage.removeItem('tcg_lounge_user');
+      console.error('Authentication failed: Token expired or invalid');
+      TokenManager.clearToken();
       
-      // Don't redirect on login/signup pages
-      if (!window.location.pathname.includes('/auth')) {
+      // Only redirect if we're on a protected page
+      if (TokenManager.shouldRedirect()) {
+        // Show a more user-friendly message before redirecting
+        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
         window.location.href = '/';
       }
     }
@@ -130,7 +195,12 @@ export const cardAPI = {
   // 모든 카드 조회
   getAllCards: async () => {
     const response = await api.get('/cards');
-    return response;
+    return {
+      data: {
+        success: true,
+        cards: response.data
+      }
+    };
   },
 
   // 카드 검색
@@ -138,7 +208,12 @@ export const cardAPI = {
     const response = await api.get('/cards/search', {
       params: { name: query }
     });
-    return response;
+    return {
+      data: {
+        success: true,
+        cards: response.data
+      }
+    };
   },
 };
 
@@ -475,6 +550,24 @@ export const deckAPI = {
     const response = await api.put(`/decks/${deckId}`, deckData);
     return response;
   },
+  
+  // 통합 저장 (생성 또는 수정)
+  saveDeck: async (deckData: { deckId?: number; deckName: string; description?: string; isPublic?: boolean }) => {
+    const response = await api.post('/decks/save', deckData);
+    return response;
+  },
+
+  // 카드와 함께 덱 저장
+  saveDeckWithCards: async (deckData: { 
+    deckId?: number; 
+    deckName: string; 
+    description?: string; 
+    isPublic?: boolean;
+    cards: any[];
+  }) => {
+    const response = await api.post('/decks/save-with-cards', deckData);
+    return response;
+  },
 
   // 덱 삭제
   deleteDeck: async (deckId: number) => {
@@ -505,6 +598,29 @@ export const deckAPI = {
     const response = await api.get(`/decks/${deckId}/stats`);
     return response;
   },
+
+  // 실시간 카드 추가 (백엔드 API 호출)
+  addCardToDeckAPI: async (deckId: number, cardId: number, quantity: number = 1) => {
+    const response = await api.post(`/decks/${deckId}/cards`, {
+      cardId,
+      quantity
+    });
+    return response;
+  },
+
+  // 실시간 카드 제거 (백엔드 API 호출)
+  removeCardFromDeckAPI: async (deckId: number, cardId: number, quantity: number = 1) => {
+    const response = await api.delete(`/decks/${deckId}/cards`, {
+      data: {
+        cardId,
+        quantity
+      }
+    });
+    return response;
+  },
 };
+
+// Export TokenManager for use in components
+export { TokenManager };
 
 export default api;

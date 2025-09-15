@@ -18,7 +18,7 @@ import {
   Apple,
   Facebook
 } from '@mui/icons-material';
-import { authAPI } from '../services/api';
+import { authAPI, TokenManager } from '../services/api';
 
 interface LoginModalProps {
   open: boolean;
@@ -47,11 +47,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
       console.log('LoginModal 로그인 응답:', response);
 
       if (response.data.success) {
-        // 토큰 저장
-        localStorage.setItem('tcg_lounge_token', response.data.data.token);
-        localStorage.setItem('tcg_lounge_user', JSON.stringify(response.data.data));
-        localStorage.setItem('userType', response.data.data.userType);
-        localStorage.setItem('username', response.data.data.username);
+        // 향상된 토큰 관리 사용
+        const tokenData = response.data.data;
+        TokenManager.setToken(tokenData.token, tokenData.expiresIn || 3600); // 기본 1시간
+        localStorage.setItem('tcg_lounge_user', JSON.stringify(tokenData));
+        localStorage.setItem('userType', tokenData.userType);
+        localStorage.setItem('username', tokenData.username);
         
         handleCloseModal();
         
