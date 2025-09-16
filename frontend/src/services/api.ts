@@ -256,14 +256,14 @@ export const userAPI = {
   },
 
   // 사용자 프로필 업데이트
-  updateProfile: async (userId: number, profileData: { nickname?: string; email?: string }) => {
-    const response = await api.put(`/users/${userId}/profile`, profileData);
+  updateProfile: async (profileData: { nickname?: string; email?: string }) => {
+    const response = await api.put('/users/profile', profileData);
     return response;
   },
 
   // 비밀번호 변경
-  changePassword: async (userId: number, passwordData: { currentPassword: string; newPassword: string }) => {
-    const response = await api.put(`/users/${userId}/password`, passwordData);
+  changePassword: async (passwordData: { currentPassword: string; newPassword: string }) => {
+    const response = await api.put('/users/password', passwordData);
     return response;
   }
 };
@@ -529,7 +529,7 @@ export interface RemoveCardFromDeckRequest {
 export const deckAPI = {
   // 내 덱 목록 조회
   getMyDecks: async () => {
-    const response = await api.get('/decks/my');
+    const response = await api.get('/decks/my-decks');
     return response;
   },
 

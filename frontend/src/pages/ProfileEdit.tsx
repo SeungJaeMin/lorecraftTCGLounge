@@ -88,7 +88,7 @@ const ProfileEdit: React.FC = () => {
       setSaving(true);
       setError('');
       
-      const response = await userAPI.updateProfile(user.uid, {
+      const response = await userAPI.updateProfile({
         nickname: nickname.trim(),
         email: email.trim()
       });
@@ -138,7 +138,7 @@ const ProfileEdit: React.FC = () => {
       setSaving(true);
       setError('');
       
-      const response = await userAPI.changePassword(user.uid, {
+      const response = await userAPI.changePassword({
         currentPassword,
         newPassword
       });
