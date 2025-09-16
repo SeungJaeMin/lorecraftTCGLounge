@@ -2,8 +2,10 @@ package com.lorecraft.tcglounge.controller;
 
 import com.lorecraft.tcglounge.entity.CardDeck;
 import com.lorecraft.tcglounge.entity.DeckDetail;
+import com.lorecraft.tcglounge.entity.User;
+import com.lorecraft.tcglounge.entity.Gamer;
 import com.lorecraft.tcglounge.service.DeckService;
-import com.lorecraft.tcglounge.service.AuthService;
+import com.lorecraft.tcglounge.security.CurrentUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -21,18 +23,15 @@ public class DeckController {
     private static final Logger log = LoggerFactory.getLogger(DeckController.class);
     
     private final DeckService deckService;
-    private final AuthService authService;
     
-    public DeckController(DeckService deckService, AuthService authService) {
+    public DeckController(DeckService deckService) {
         this.deckService = deckService;
-        this.authService = authService;
     }
     
-    @GetMapping("/my")
-    public ResponseEntity<Map<String, Object>> getMyDecks(@RequestHeader("Authorization") String authHeader) {
+    @GetMapping("/my-decks")
+    public ResponseEntity<Map<String, Object>> getMyDecks(@CurrentUser Gamer gamer) {
         try {
-            Long gamerId = authService.getGamerIdFromToken(authHeader);
-            List<CardDeck> decks = deckService.getGamerDecks(gamerId);
+            List<CardDeck> decks = deckService.getGamerDecks(gamer.getUid());
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -52,14 +51,13 @@ public class DeckController {
     @GetMapping("/{deckId}")
     public ResponseEntity<Map<String, Object>> getDeck(
             @PathVariable Long deckId, 
-            @RequestHeader("Authorization") String authHeader) {
+            @CurrentUser Gamer gamer) {
         try {
-            Long gamerId = authService.getGamerIdFromToken(authHeader);
-            CardDeck deck = deckService.getDeckById(deckId, gamerId)
+            CardDeck deck = deckService.getDeckById(deckId, gamer.getUid())
                 .orElseThrow(() -> new RuntimeException("Deck not found"));
             
-            List<DeckDetail> deckCards = deckService.getDeckCards(deckId, gamerId);
-            Map<String, Object> deckStats = deckService.getDeckStats(deckId, gamerId);
+            List<DeckDetail> deckCards = deckService.getDeckCards(deckId, gamer.getUid());
+            Map<String, Object> deckStats = deckService.getDeckStats(deckId, gamer.getUid());
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -80,9 +78,8 @@ public class DeckController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> createDeck(
             @RequestBody Map<String, String> request,
-            @RequestHeader("Authorization") String authHeader) {
+            @CurrentUser Gamer gamer) {
         try {
-            Long gamerId = authService.getGamerIdFromToken(authHeader);
             String deckName = request.get("deckName");
             String description = request.get("description");
             
@@ -90,7 +87,7 @@ public class DeckController {
                 throw new RuntimeException("Deck name is required");
             }
             
-            CardDeck deck = deckService.createDeck(gamerId, deckName.trim(), description);
+            CardDeck deck = deckService.createDeck(gamer.getUid(), deckName.trim(), description);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -111,14 +108,13 @@ public class DeckController {
     public ResponseEntity<Map<String, Object>> updateDeck(
             @PathVariable Long deckId,
             @RequestBody Map<String, Object> request,
-            @RequestHeader("Authorization") String authHeader) {
+            @CurrentUser Gamer gamer) {
         try {
-            Long gamerId = authService.getGamerIdFromToken(authHeader);
             String deckName = (String) request.get("deckName");
             String description = (String) request.get("description");
             Boolean isPublic = (Boolean) request.get("isPublic");
             
-            CardDeck deck = deckService.updateDeck(deckId, gamerId, deckName, description, isPublic);
+            CardDeck deck = deckService.updateDeck(deckId, gamer.getUid(), deckName, description, isPublic);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -138,15 +134,14 @@ public class DeckController {
     @PostMapping("/save")
     public ResponseEntity<Map<String, Object>> saveOrUpdateDeck(
             @RequestBody Map<String, Object> request,
-            @RequestHeader("Authorization") String authHeader) {
+            @CurrentUser Gamer gamer) {
         try {
-            Long gamerId = authService.getGamerIdFromToken(authHeader);
             Long deckId = request.get("deckId") != null ? Long.valueOf(request.get("deckId").toString()) : null;
             String deckName = (String) request.get("deckName");
             String description = (String) request.get("description");
             Boolean isPublic = request.get("isPublic") != null ? Boolean.valueOf(request.get("isPublic").toString()) : false;
             
-            CardDeck savedDeck = deckService.saveOrUpdateDeck(deckId, gamerId, deckName, description, isPublic);
+            CardDeck savedDeck = deckService.saveOrUpdateDeck(deckId, gamer.getUid(), deckName, description, isPublic);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -166,21 +161,20 @@ public class DeckController {
     @PostMapping("/save-with-cards")
     public ResponseEntity<Map<String, Object>> saveDeckWithCards(
             @RequestBody Map<String, Object> request,
-            @RequestHeader("Authorization") String authHeader) {
+            @CurrentUser Gamer gamer) {
         try {
-            Long gamerId = authService.getGamerIdFromToken(authHeader);
             Long deckId = request.get("deckId") != null ? Long.valueOf(request.get("deckId").toString()) : null;
             String deckName = (String) request.get("deckName");
             String description = (String) request.get("description");
             Boolean isPublic = request.get("isPublic") != null ? Boolean.valueOf(request.get("isPublic").toString()) : false;
             
             // 덱과 카드 목록 저장
-            CardDeck savedDeck = deckService.saveOrUpdateDeck(deckId, gamerId, deckName, description, isPublic);
+            CardDeck savedDeck = deckService.saveOrUpdateDeck(deckId, gamer.getUid(), deckName, description, isPublic);
             
             // 카드 목록이 포함된 경우 처리
             List<?> cardsList = (List<?>) request.get("cards");
             if (cardsList != null && !cardsList.isEmpty()) {
-                deckService.updateDeckCards(savedDeck.getDeckId(), gamerId, cardsList);
+                deckService.updateDeckCards(savedDeck.getDeckId(), gamer.getUid(), cardsList);
             }
             
             Map<String, Object> response = new HashMap<>();
@@ -201,10 +195,9 @@ public class DeckController {
     @DeleteMapping("/{deckId}")
     public ResponseEntity<Map<String, Object>> deleteDeck(
             @PathVariable Long deckId,
-            @RequestHeader("Authorization") String authHeader) {
+            @CurrentUser Gamer gamer) {
         try {
-            Long gamerId = authService.getGamerIdFromToken(authHeader);
-            deckService.deleteDeck(deckId, gamerId);
+            deckService.deleteDeck(deckId, gamer.getUid());
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -224,13 +217,12 @@ public class DeckController {
     public ResponseEntity<Map<String, Object>> addCardToDeck(
             @PathVariable Long deckId,
             @RequestBody Map<String, Object> request,
-            @RequestHeader("Authorization") String authHeader) {
+            @CurrentUser Gamer gamer) {
         try {
-            Long gamerId = authService.getGamerIdFromToken(authHeader);
             Long cardId = Long.valueOf(request.get("cardId").toString());
             Integer quantity = Integer.valueOf(request.get("quantity").toString());
             
-            DeckDetail deckDetail = deckService.addCardToDeck(deckId, gamerId, cardId, quantity);
+            DeckDetail deckDetail = deckService.addCardToDeck(deckId, gamer.getUid(), cardId, quantity);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -247,17 +239,16 @@ public class DeckController {
         }
     }
     
-    @DeleteMapping("/{deckId}/cards")
+    @DeleteMapping("/{deckId}/cards/{cardId}")
     public ResponseEntity<Map<String, Object>> removeCardFromDeck(
             @PathVariable Long deckId,
+            @PathVariable Long cardId,
             @RequestBody Map<String, Object> request,
-            @RequestHeader("Authorization") String authHeader) {
+            @CurrentUser Gamer gamer) {
         try {
-            Long gamerId = authService.getGamerIdFromToken(authHeader);
-            Long cardId = Long.valueOf(request.get("cardId").toString());
             Integer quantity = Integer.valueOf(request.get("quantity").toString());
             
-            deckService.removeCardFromDeck(deckId, gamerId, cardId, quantity);
+            deckService.removeCardFromDeck(deckId, gamer.getUid(), cardId, quantity);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -276,16 +267,15 @@ public class DeckController {
     @PostMapping("/random")
     public ResponseEntity<Map<String, Object>> generateRandomDeck(
             @RequestBody Map<String, String> request,
-            @RequestHeader("Authorization") String authHeader) {
+            @CurrentUser Gamer gamer) {
         try {
-            Long gamerId = authService.getGamerIdFromToken(authHeader);
             String deckName = request.get("deckName");
             
             if (deckName == null || deckName.trim().isEmpty()) {
                 deckName = "Random Deck " + System.currentTimeMillis();
             }
             
-            CardDeck deck = deckService.generateRandomDeck(gamerId, deckName.trim());
+            CardDeck deck = deckService.generateRandomDeck(gamer.getUid(), deckName.trim());
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -305,10 +295,9 @@ public class DeckController {
     @GetMapping("/{deckId}/stats")
     public ResponseEntity<Map<String, Object>> getDeckStats(
             @PathVariable Long deckId,
-            @RequestHeader("Authorization") String authHeader) {
+            @CurrentUser Gamer gamer) {
         try {
-            Long gamerId = authService.getGamerIdFromToken(authHeader);
-            Map<String, Object> stats = deckService.getDeckStats(deckId, gamerId);
+            Map<String, Object> stats = deckService.getDeckStats(deckId, gamer.getUid());
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

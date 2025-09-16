@@ -4,8 +4,8 @@ import com.lorecraft.tcglounge.dto.GamerProfileDTO;
 import com.lorecraft.tcglounge.entity.Gamer;
 import com.lorecraft.tcglounge.entity.CardDeck;
 import com.lorecraft.tcglounge.repository.GamerRepository;
-import com.lorecraft.tcglounge.service.AuthService;
 import com.lorecraft.tcglounge.service.DeckService;
+import com.lorecraft.tcglounge.security.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,30 +23,13 @@ public class GamerController {
 
     @Autowired
     private GamerRepository gamerRepository;
-
-    @Autowired
-    private AuthService authService;
     
     @Autowired
     private DeckService deckService;
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getGamerProfile(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getGamerProfile(@CurrentUser Gamer gamer) {
         try {
-            // JWT에서 Gamer ID 추출 - AuthService 사용
-            Long gamerId = authService.getGamerIdFromToken(token);
-            
-            // 게이머 정보 조회 - UID로 직접 조회
-            Optional<Gamer> gamerOpt = gamerRepository.findById(gamerId);
-            
-            if (!gamerOpt.isPresent()) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "게이머 정보를 찾을 수 없습니다.");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            Gamer gamer = gamerOpt.get();
             GamerProfileDTO profileDTO = new GamerProfileDTO(gamer);
             
             Map<String, Object> response = new HashMap<>();
@@ -64,23 +47,8 @@ public class GamerController {
     }
 
     @GetMapping("/dashboard")
-    public ResponseEntity<?> getGamerDashboard(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getGamerDashboard(@CurrentUser Gamer gamer) {
         try {
-            // JWT에서 Gamer ID 추출 - AuthService 사용
-            Long gamerId = authService.getGamerIdFromToken(token);
-            
-            // 게이머 정보 조회 - UID로 직접 조회
-            Optional<Gamer> gamerOpt = gamerRepository.findById(gamerId);
-            
-            if (!gamerOpt.isPresent()) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "게이머 정보를 찾을 수 없습니다.");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            Gamer gamer = gamerOpt.get();
-            
             // 대시보드 데이터 구성
             Map<String, Object> dashboardData = new HashMap<>();
             
@@ -89,7 +57,7 @@ public class GamerController {
             dashboardData.put("profile", profile);
             
             // 실제 덱 정보 조회
-            List<CardDeck> userDecks = deckService.getGamerDecks(gamerId);
+            List<CardDeck> userDecks = deckService.getGamerDecks(gamer.getUid());
             List<Map<String, Object>> decks = new ArrayList<>();
             
             for (CardDeck deck : userDecks) {

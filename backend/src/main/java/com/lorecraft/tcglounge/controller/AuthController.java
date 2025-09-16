@@ -8,6 +8,7 @@ import com.lorecraft.tcglounge.entity.Admin;
 import com.lorecraft.tcglounge.entity.StoreOwner;
 import com.lorecraft.tcglounge.service.AuthService;
 import com.lorecraft.tcglounge.service.JwtTokenService;
+import com.lorecraft.tcglounge.security.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -81,29 +82,8 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getCurrentUser(@CurrentUser User user) {
         try {
-            // Bearer 토큰에서 실제 토큰 추출
-            String jwtToken = token.replace("Bearer ", "");
-            
-            if (!jwtTokenService.isTokenValid(jwtToken)) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "유효하지 않은 토큰입니다.");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            // JWT에서 UID 추출하여 사용자 조회
-            Long userId = jwtTokenService.extractUserId(jwtToken);
-            User user = authService.findByUid(userId);
-            
-            if (user == null) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "사용자를 찾을 수 없습니다.");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
             String userType = determineUserType(user);
             
             Map<String, Object> userData = new HashMap<>();

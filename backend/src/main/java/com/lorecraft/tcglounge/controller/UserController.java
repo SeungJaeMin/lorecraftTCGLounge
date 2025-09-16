@@ -2,6 +2,7 @@ package com.lorecraft.tcglounge.controller;
 
 import com.lorecraft.tcglounge.entity.User;
 import com.lorecraft.tcglounge.service.UserService;
+import com.lorecraft.tcglounge.security.CurrentUser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,15 +59,15 @@ public class UserController {
         }
     }
     
-    @PutMapping("/{id}/profile")
+    @PutMapping("/profile")
     public ResponseEntity<Map<String, Object>> updateUserProfile(
-            @PathVariable Long id,
+            @CurrentUser User currentUser,
             @RequestBody Map<String, String> request) {
         try {
             String nickname = request.get("nickname");
             String email = request.get("email");
             
-            User user = userService.updateUserProfile(id, nickname, email);
+            User user = userService.updateUserProfile(currentUser.getUid(), nickname, email);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -83,9 +84,9 @@ public class UserController {
         }
     }
     
-    @PutMapping("/{id}/password")
+    @PutMapping("/password")
     public ResponseEntity<Map<String, Object>> changePassword(
-            @PathVariable Long id,
+            @CurrentUser User currentUser,
             @RequestBody Map<String, String> request) {
         try {
             String currentPassword = request.get("currentPassword");
@@ -98,7 +99,7 @@ public class UserController {
                 return ResponseEntity.badRequest().body(response);
             }
             
-            userService.changePassword(id, currentPassword, newPassword);
+            userService.changePassword(currentUser.getUid(), currentPassword, newPassword);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
