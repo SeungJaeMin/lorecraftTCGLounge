@@ -69,7 +69,7 @@ const MyPage: React.FC = () => {
   };
 
   const handleCreateDeck = () => {
-    navigate('/deck-editor');
+    navigate('/deck-editor/new');
   };
 
   const handleViewAllDecks = () => {

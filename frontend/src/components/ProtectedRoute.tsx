@@ -37,21 +37,33 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
       try {
         const response = await authAPI.getCurrentUser();
-        
+
         if (response.data.success) {
           setIsAuthenticated(true);
           setUserType(response.data.data.userType);
         } else {
           // 토큰이 유효하지 않음
+          console.warn('Auth check failed: Invalid token');
           localStorage.removeItem('tcg_lounge_token');
           localStorage.removeItem('userType');
           localStorage.removeItem('username');
         }
-      } catch (error) {
-        // 인증 실패
-        localStorage.removeItem('tcg_lounge_token');
-        localStorage.removeItem('userType');
-        localStorage.removeItem('username');
+      } catch (error: any) {
+        console.error('Auth check error:', error);
+
+        // 401 Unauthorized인 경우에만 토큰 삭제
+        if (error.response?.status === 401) {
+          console.warn('Token expired or invalid, clearing storage');
+          localStorage.removeItem('tcg_lounge_token');
+          localStorage.removeItem('userType');
+          localStorage.removeItem('username');
+        } else {
+          // 네트워크 에러 등 다른 에러는 토큰을 유지하고 재시도 가능하도록
+          console.warn('Network or server error, keeping token');
+          // 토큰이 있다면 일단 인증된 것으로 처리
+          setIsAuthenticated(true);
+          setUserType(storedUserType || 'GAMER'); // 기본값
+        }
       } finally {
         setIsLoading(false);
       }

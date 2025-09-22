@@ -3,6 +3,7 @@ package com.lorecraft.tcglounge.entity;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +19,7 @@ public class CardImage {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "card_id", nullable = false)
+    @JsonIgnore
     private Card card;
     
     @Column(name = "file_path", nullable = false)
@@ -62,6 +64,7 @@ public class CardImage {
     
     // Getters
     public Long getImageId() { return imageId; }
+    @JsonIgnore
     public Card getCard() { return card; }
     public String getFilePath() { return filePath; }
     public String getEncryptionKey() { return encryptionKey; }

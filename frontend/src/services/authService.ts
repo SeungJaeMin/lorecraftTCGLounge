@@ -1,4 +1,4 @@
-import api from './api';
+import api, { TokenManager } from './api';
 
 export interface LoginRequest {
   userid: string;
@@ -50,7 +50,8 @@ class AuthService {
       const response = await api.post<AuthResponse>('/auth/login', credentials);
       
       if (response.data.success) {
-        this.setToken(response.data.data.token);
+        // TokenManager를 사용하여 토큰을 24시간 만료로 설정
+        TokenManager.setToken(response.data.data.token, 86400); // 24 hours
         this.setUser({
           id: response.data.data.id,
           userid: response.data.data.userid,
@@ -106,7 +107,7 @@ class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
+    TokenManager.clearToken();
     localStorage.removeItem(this.userKey);
     window.location.href = '/';
   }

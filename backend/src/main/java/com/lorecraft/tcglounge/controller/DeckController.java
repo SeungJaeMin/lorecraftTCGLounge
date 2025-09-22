@@ -50,14 +50,20 @@ public class DeckController {
     
     @GetMapping("/{deckId}")
     public ResponseEntity<Map<String, Object>> getDeck(
-            @PathVariable Long deckId, 
+            @PathVariable Long deckId,
             @CurrentUser Gamer gamer) {
         try {
+            log.info("=== Getting deck {} for gamer {} ===", deckId, gamer.getUid());
+
             CardDeck deck = deckService.getDeckById(deckId, gamer.getUid())
                 .orElseThrow(() -> new RuntimeException("Deck not found"));
-            
+            log.info("Deck found: {}", deck.getDeckName());
+
             List<DeckDetail> deckCards = deckService.getDeckCards(deckId, gamer.getUid());
+            log.info("Deck cards loaded: {} cards", deckCards.size());
+
             Map<String, Object> deckStats = deckService.getDeckStats(deckId, gamer.getUid());
+            log.info("Deck stats calculated");
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -67,7 +73,10 @@ public class DeckController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Error getting deck: " + deckId, e);
+            log.error("=== ERROR getting deck {} ===", deckId);
+            log.error("Error type: {}", e.getClass().getName());
+            log.error("Error message: {}", e.getMessage());
+            log.error("Stack trace:", e);
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", e.getMessage());

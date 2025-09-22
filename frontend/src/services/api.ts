@@ -52,8 +52,8 @@ class TokenManager {
   
   static clearToken(): void {
     localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.TOKEN_INFO_KEY);
+    localStorage.removeItem(this.USER_KEY);
   }
   
   static shouldRedirect(): boolean {
@@ -622,5 +622,4 @@ export const deckAPI = {
 
 // Export TokenManager for use in components
 export { TokenManager };
-
 export default api;

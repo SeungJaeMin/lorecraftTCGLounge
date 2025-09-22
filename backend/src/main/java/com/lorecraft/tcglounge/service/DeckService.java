@@ -44,7 +44,17 @@ public class DeckService {
     public List<CardDeck> getGamerDecks(Long gamerId) {
         Gamer gamer = gamerRepository.findById(gamerId)
             .orElseThrow(() -> new RuntimeException("Gamer not found: " + gamerId));
-        return deckRepository.findByGamerOrderByUpdatedAtDesc(gamer);
+        List<CardDeck> decks = deckRepository.findByGamerOrderByUpdatedAtDesc(gamer);
+
+        // Eager fetch leader cards to avoid lazy loading issues
+        for (CardDeck deck : decks) {
+            if (deck.getLeaderCard() != null) {
+                // Force initialization of leader card
+                deck.getLeaderCard().getCardName();
+            }
+        }
+
+        return decks;
     }
     
     @Transactional(readOnly = true)
@@ -58,7 +68,19 @@ public class DeckService {
     public List<DeckDetail> getDeckCards(Long deckId, Long gamerId) {
         CardDeck deck = getDeckById(deckId, gamerId)
             .orElseThrow(() -> new RuntimeException("Deck not found: " + deckId));
-        return deckDetailRepository.findByDeckAndIsSideboardFalseOrderByOrderIndexAsc(deck);
+        List<DeckDetail> deckDetails = deckDetailRepository.findByDeckAndIsSideboardFalseOrderByOrderIndexAsc(deck);
+
+        // Eager fetch card information to avoid lazy loading issues
+        for (DeckDetail detail : deckDetails) {
+            if (detail.getCard() != null) {
+                // Force initialization of card entity
+                detail.getCard().getCardName();
+                detail.getCard().getCardType();
+                detail.getCard().getCardColor();
+            }
+        }
+
+        return deckDetails;
     }
     
     public CardDeck createDeck(Long gamerId, String deckName, String description) {
