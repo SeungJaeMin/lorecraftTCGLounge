@@ -5,6 +5,10 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,6 +17,8 @@ import java.util.List;
 @Entity
 @Table(name = "card_decks")
 @EntityListeners(AuditingEntityListener.class)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CardDeck {
     
     @Id
@@ -68,65 +74,94 @@ public class CardDeck {
     @JsonIgnore
     private List<DeckDetail> deckDetails = new ArrayList<>();
     
-    public CardDeck() {}
-    
+    @Builder
+    private CardDeck(Gamer gamer, String deckName, String description, DeckType deckType,
+                    Boolean isPublic, Boolean isTournamentLegal, Card leaderCard) {
+        this.gamer = gamer;
+        this.deckName = deckName;
+        this.description = description;
+        this.deckType = deckType != null ? deckType : DeckType.STANDARD;
+        this.isPublic = isPublic != null ? isPublic : false;
+        this.isTournamentLegal = isTournamentLegal != null ? isTournamentLegal : false;
+        this.leaderCard = leaderCard;
+        this.totalCards = 0;
+        this.likesCount = 0;
+        this.viewsCount = 0;
+        generateDeckCode();
+    }
+
+    // JPA용 간단 생성자 (하위 호환성)
     public CardDeck(Gamer gamer, String deckName) {
         this.gamer = gamer;
         this.deckName = deckName;
+        this.deckType = DeckType.STANDARD;
+        this.isPublic = false;
+        this.isTournamentLegal = false;
+        this.totalCards = 0;
+        this.likesCount = 0;
+        this.viewsCount = 0;
         generateDeckCode();
     }
     
-    // Getters
-    public Long getDeckId() { return deckId; }
-    public Gamer getGamer() { return gamer; }
-    public String getDeckName() { return deckName; }
-    public String getDescription() { return description; }
-    public DeckType getDeckType() { return deckType; }
-    public Card getLeaderCard() { return leaderCard; }
-    public Boolean getIsPublic() { return isPublic; }
-    public Boolean getIsTournamentLegal() { return isTournamentLegal; }
-    public Integer getTotalCards() { return totalCards; }
-    public String getDeckCode() { return deckCode; }
-    public Integer getLikesCount() { return likesCount; }
-    public Integer getViewsCount() { return viewsCount; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public List<DeckDetail> getDeckDetails() { return deckDetails; }
+    // Getters는 @Getter 어노테이션으로 자동 생성
     
-    // Setters
-    public void setDeckId(Long deckId) { this.deckId = deckId; }
-    public void setGamer(Gamer gamer) { this.gamer = gamer; }
-    public void setDeckName(String deckName) { this.deckName = deckName; }
-    public void setDescription(String description) { this.description = description; }
-    public void setDeckType(DeckType deckType) { this.deckType = deckType; }
-    public void setLeaderCard(Card leaderCard) { this.leaderCard = leaderCard; }
-    public void setIsPublic(Boolean isPublic) { this.isPublic = isPublic; }
-    public void setIsTournamentLegal(Boolean isTournamentLegal) { this.isTournamentLegal = isTournamentLegal; }
-    public void setTotalCards(Integer totalCards) { this.totalCards = totalCards; }
-    public void setDeckCode(String deckCode) { this.deckCode = deckCode; }
-    public void setLikesCount(Integer likesCount) { this.likesCount = likesCount; }
-    public void setViewsCount(Integer viewsCount) { this.viewsCount = viewsCount; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-    public void setDeckDetails(List<DeckDetail> deckDetails) { this.deckDetails = deckDetails; }
-    
-    // Business methods
+    // Business methods (Setter 대체)
+    public void updateDeckInfo(String deckName, String description) {
+        if (deckName != null && !deckName.trim().isEmpty()) {
+            this.deckName = deckName.trim();
+        }
+        if (description != null) {
+            this.description = description.trim();
+        }
+    }
+
+    public void updateSettings(DeckType deckType, Boolean isPublic, Boolean isTournamentLegal) {
+        if (deckType != null) {
+            this.deckType = deckType;
+        }
+        if (isPublic != null) {
+            this.isPublic = isPublic;
+        }
+        if (isTournamentLegal != null) {
+            this.isTournamentLegal = isTournamentLegal;
+        }
+    }
+
+    public void changeLeaderCard(Card leaderCard) {
+        this.leaderCard = leaderCard;
+    }
+
+    public void togglePublic() {
+        this.isPublic = !this.isPublic;
+    }
+
+    public void toggleTournamentLegal() {
+        this.isTournamentLegal = !this.isTournamentLegal;
+    }
+
     public void incrementViews() {
         this.viewsCount++;
     }
-    
+
     public void incrementLikes() {
         this.likesCount++;
     }
-    
+
+    public void decrementLikes() {
+        if (this.likesCount > 0) {
+            this.likesCount--;
+        }
+    }
+
     public void updateTotalCards() {
         this.totalCards = deckDetails.stream()
             .mapToInt(DeckDetail::getQuantity)
             .sum();
     }
-    
+
     private void generateDeckCode() {
         this.deckCode = "DECK_" + System.currentTimeMillis();
     }
-    
+
+
 }

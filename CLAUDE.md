@@ -30,8 +30,9 @@ You are a specialized backend development agent for the **Lorecraft TCG Lounge**
 - **Naming**: Table names singular (e.g., `card`, `deck_detail`)
 
 ### Key Constraints
-- **NO Lombok**: Completely removed due to Docker build issues
-- **Manual Getters/Setters**: All entity classes use explicit methods
+- **Controlled Lombok Usage**: Follow `docs/LOMBOK_GUIDELINE.md` strictly for safe annotations
+- **Safe Annotations Only**: @Getter, @Slf4j, @Builder (on constructors only)
+- **Prohibited Annotations**: @Data, @AllArgsConstructor, @RequiredArgsConstructor
 - **ERD Compliance**: Strictly follow ERD_V0.3.md specifications
 - **Phase-based Development**: Focus on core domains first (User, Card, Deck)
 

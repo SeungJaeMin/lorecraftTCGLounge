@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { gamerAPI } from '../services/api';
+import { gamerAPI, deckAPI } from '../services/api';
 import GamerLoungeNavigation from '../components/GamerLoungeNavigation';
 import './MyPage.css';
 
@@ -16,15 +16,21 @@ interface UserProfile {
 }
 
 interface DeckInfo {
-  id: number;
+  deckId: number;
   deckName: string;
+  description?: string;
+  deckType: string;
+  isPublic: boolean;
   totalCards: number;
-  isComplete: boolean;
+  deckCode: string;
+  createdAt: string;
+  updatedAt: string;
   leaderCard?: {
+    cardId: number;
     cardName: string;
     cardColor: string;
+    cardType: string;
   };
-  updatedAt: string;
 }
 
 interface Tournament {
@@ -49,14 +55,26 @@ const MyPage: React.FC = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await gamerAPI.getDashboard();
-      
-      if (response.data.success) {
-        const data = response.data.data;
-        setUserProfile(data.profile);
-        setMyDecks(data.myDecks || []);
-        setTournaments(data.tournaments || []);
+
+      // 프로필 데이터와 덱 데이터를 별도로 가져오기
+      const [profileResponse, decksResponse] = await Promise.all([
+        gamerAPI.getProfile(),
+        deckAPI.getMyDecks()
+      ]);
+
+      // 프로필 데이터 처리
+      if (profileResponse.data.success) {
+        setUserProfile(profileResponse.data.data);
       }
+
+      // 덱 데이터 처리 - DeckSummaryDTO 배열 직접 처리
+      if (Array.isArray(decksResponse.data)) {
+        setMyDecks(decksResponse.data);
+      }
+
+      // 토너먼트 데이터는 임시로 비워둠 (아직 구현되지 않음)
+      setTournaments([]);
+
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
     } finally {
@@ -217,8 +235,8 @@ const MyPage: React.FC = () => {
               return (
                 <div
                   key={index}
-                  className={`deck-slot ${isEmpty ? 'empty' : 'filled'} ${deck?.isComplete ? 'complete' : 'incomplete'}`}
-                  onClick={isEmpty ? handleCreateDeck : () => handleDeckClick(deck.id)}
+                  className={`deck-slot ${isEmpty ? 'empty' : 'filled'} ${deck && deck.totalCards >= 40 ? 'complete' : 'incomplete'}`}
+                  onClick={isEmpty ? handleCreateDeck : () => handleDeckClick(deck.deckId)}
                   title={deck ? deck.deckName : '새 덱 만들기'}
                 >
                   {isEmpty ? (
@@ -233,7 +251,7 @@ const MyPage: React.FC = () => {
                         <div className="card-count">{deck.totalCards}</div>
                       </div>
                       <div className="deck-name">{deck.deckName}</div>
-                      {!deck.isComplete && <div className="incomplete-badge">미완성</div>}
+                      {deck.totalCards < 40 && <div className="incomplete-badge">미완성</div>}
                     </div>
                   )}
                 </div>

@@ -2,11 +2,17 @@ package com.lorecraft.tcglounge.entity;
 
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "deck_details")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DeckDetail {
     
     @Id
@@ -35,29 +41,55 @@ public class DeckDetail {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
-    public DeckDetail() {}
-    
+    @Builder
+    private DeckDetail(CardDeck deck, Card card, Integer quantity,
+                      Boolean isSideboard, Integer orderIndex) {
+        this.deck = deck;
+        this.card = card;
+        this.quantity = quantity != null ? quantity : 1;
+        this.isSideboard = isSideboard != null ? isSideboard : false;
+        this.orderIndex = orderIndex;
+    }
+
+    // JPA용 간단 생성자 (하위 호환성)
     public DeckDetail(CardDeck deck, Card card, Integer quantity) {
         this.deck = deck;
         this.card = card;
-        this.quantity = quantity;
+        this.quantity = quantity != null ? quantity : 1;
+        this.isSideboard = false;
     }
     
-    // Getters
-    public Long getDetailId() { return detailId; }
-    public CardDeck getDeck() { return deck; }
-    public Card getCard() { return card; }
-    public Integer getQuantity() { return quantity; }
-    public Boolean getIsSideboard() { return isSideboard; }
-    public Integer getOrderIndex() { return orderIndex; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    
-    // Setters
-    public void setDetailId(Long detailId) { this.detailId = detailId; }
-    public void setDeck(CardDeck deck) { this.deck = deck; }
-    public void setCard(Card card) { this.card = card; }
-    public void setQuantity(Integer quantity) { this.quantity = quantity; }
-    public void setIsSideboard(Boolean isSideboard) { this.isSideboard = isSideboard; }
-    public void setOrderIndex(Integer orderIndex) { this.orderIndex = orderIndex; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    // Getters는 @Getter 어노테이션으로 자동 생성
+
+    // Business methods (Setter 대체)
+    public void updateQuantity(Integer quantity) {
+        if (quantity != null && quantity > 0) {
+            this.quantity = quantity;
+        }
+    }
+
+    public void increaseQuantity(Integer amount) {
+        if (amount != null && amount > 0) {
+            this.quantity += amount;
+        }
+    }
+
+    public void decreaseQuantity(Integer amount) {
+        if (amount != null && amount > 0 && this.quantity > amount) {
+            this.quantity -= amount;
+        }
+    }
+
+    public void moveToSideboard() {
+        this.isSideboard = true;
+    }
+
+    public void moveToMainDeck() {
+        this.isSideboard = false;
+    }
+
+    public void updateOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
+    }
+
 }

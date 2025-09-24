@@ -89,7 +89,13 @@
         </dependency>
         
         <!-- Utilities -->
-        <!-- Lombok Removed - 2025-01-03: Complete removal due to Docker build issues -->
+        <!-- Lombok - 2025-01-24: Controlled usage following LOMBOK_GUIDELINE.md -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+            <scope>provided</scope>
+        </dependency>
         
         <!-- Test -->
         <dependency>
