@@ -3,7 +3,7 @@ package com.lorecraft.tcglounge.controller;
 import com.lorecraft.tcglounge.dto.deck.*;
 import com.lorecraft.tcglounge.entity.CardDeck;
 import com.lorecraft.tcglounge.entity.DeckDetail;
-import com.lorecraft.tcglounge.entity.Gamer;
+import com.lorecraft.tcglounge.entity.User;
 import com.lorecraft.tcglounge.service.DeckService;
 import com.lorecraft.tcglounge.security.CurrentUser;
 import lombok.extern.slf4j.Slf4j;
@@ -30,9 +30,10 @@ public class DeckController {
 
     // 1. 내 덱 목록 조회 (간단한 정보)
     @GetMapping("/my-decks")
-    public ResponseEntity<List<DeckSummaryDTO>> getMyDecks(@CurrentUser Gamer gamer) {
+    public ResponseEntity<List<DeckSummaryDTO>> getMyDecks(@CurrentUser User user) {
         try {
-            List<CardDeck> decks = deckService.getGamerDecks(gamer.getUid());
+            // 모든 사용자가 자신의 덱을 조회할 수 있음
+            List<CardDeck> decks = deckService.getUserDecks(user.getUserid());
             List<DeckSummaryDTO> deckSummaries = decks.stream()
                 .map(DeckSummaryDTO::from)
                 .collect(Collectors.toList());
@@ -46,41 +47,78 @@ public class DeckController {
 
     // 2. 특정 덱 조회 (전체 정보 + 카드 리스트)
     @GetMapping("/{deckId}")
-    public ResponseEntity<DeckFullResponseDTO> getDeck(
+    public ResponseEntity<Object> getDeck(
             @PathVariable Long deckId,
-            @CurrentUser Gamer gamer) {
+            @CurrentUser User user) {
         try {
-            log.info("=== Getting deck {} for gamer {} ===", deckId, gamer.getUid());
+            // 모든 사용자가 덱을 조회할 수 있음
+            log.info("=== Getting deck {} for user {} ===", deckId, user.getUserid());
 
-            CardDeck deck = deckService.getDeckById(deckId, gamer.getUid())
-                .orElseThrow(() -> new RuntimeException("Deck not found"));
+            CardDeck deck = deckService.getDeckById(deckId, user.getUserid())
+                .orElseThrow(() -> new RuntimeException("Deck not found: " + deckId));
 
-            List<DeckDetail> deckCards = deckService.getDeckCards(deckId, gamer.getUid());
+            List<DeckDetail> deckCards = deckService.getDeckCards(deckId, user.getUserid());
+            log.info("Found {} cards for deck {}", deckCards.size(), deckId);
 
             DeckFullResponseDTO response = DeckFullResponseDTO.from(deck, deckCards);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("=== ERROR getting deck {} ===", deckId);
+            log.error("=== ERROR getting deck {} for user {} ===", deckId, user.getUserid());
+            log.error("Error type: {}", e.getClass().getName());
             log.error("Error message: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
+            log.error("Stack trace:", e);
+
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("error", e.getClass().getSimpleName());
+
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 
     // 3. 덱 저장 (생성/수정 통합)
-    @PostMapping("/save")
-    public ResponseEntity<Map<String, Object>> saveDeck(
+    // 새 덱 생성
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> createDeck(
             @Valid @RequestBody DeckSaveRequestDTO request,
-            @CurrentUser Gamer gamer) {
+            @CurrentUser User user) {
         try {
-            log.info("Saving deck: {} for gamer: {}", request.getDeckName(), gamer.getUid());
-
-            CardDeck savedDeck = deckService.saveFullDeck(gamer.getUid(), request);
+            log.info("Creating new deck: {} for user: {}", request.getDeckName(), user.getUserid());
+            request.setDeckId(null); // 새 덱 생성 보장
+            CardDeck savedDeck = deckService.saveDeck(user.getUserid(), request);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("deck", DeckSummaryDTO.from(savedDeck));
-            response.put("message", request.getDeckId() == null ? "덱이 생성되었습니다" : "덱이 수정되었습니다");
+            response.put("message", "덱이 생성되었습니다");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error creating deck", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // 덱 수정
+    @PutMapping("/{deckId}")
+    public ResponseEntity<Map<String, Object>> updateDeck(
+            @PathVariable Long deckId,
+            @Valid @RequestBody DeckSaveRequestDTO request,
+            @CurrentUser User user) {
+        try {
+            log.info("Updating deck: {} for user: {}", deckId, user.getUserid());
+            request.setDeckId(deckId); // 덱 ID 설정
+            CardDeck savedDeck = deckService.saveDeck(user.getUserid(), request);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("deck", DeckSummaryDTO.from(savedDeck));
+            response.put("message", "덱이 수정되었습니다");
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -96,9 +134,9 @@ public class DeckController {
     @DeleteMapping("/{deckId}")
     public ResponseEntity<Map<String, Object>> deleteDeck(
             @PathVariable Long deckId,
-            @CurrentUser Gamer gamer) {
+            @CurrentUser User user) {
         try {
-            deckService.deleteDeck(deckId, gamer.getUid());
+            deckService.deleteDeck(deckId, user.getUserid());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -118,7 +156,7 @@ public class DeckController {
     @GetMapping("/search/{deckCode}")
     public ResponseEntity<DeckFullResponseDTO> searchDeck(
             @PathVariable String deckCode,
-            @CurrentUser Gamer gamer) {
+            @CurrentUser User user) {
         try {
             log.info("Searching deck with code: {}", deckCode);
 
@@ -140,7 +178,7 @@ public class DeckController {
     @PostMapping("/random")
     public ResponseEntity<Map<String, Object>> generateRandomDeck(
             @RequestBody Map<String, String> request,
-            @CurrentUser Gamer gamer) {
+            @CurrentUser User user) {
         try {
             String deckName = request.get("deckName");
 
@@ -148,7 +186,7 @@ public class DeckController {
                 deckName = "Random Deck " + System.currentTimeMillis();
             }
 
-            CardDeck deck = deckService.generateRandomDeck(gamer.getUid(), deckName.trim());
+            CardDeck deck = deckService.generateRandomDeck(user.getUserid(), deckName.trim());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

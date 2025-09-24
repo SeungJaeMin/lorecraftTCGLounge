@@ -2,6 +2,19 @@ package com.lorecraft.tcglounge.entity;
 
 import jakarta.persistence.*;
 
+/**
+ * 게이머 엔티티 (User 하위 클래스)
+ *
+ * 역할:
+ * - 게임 플레이어의 통계 및 포인트 정보 관리
+ * - 전적, 레이팅, 포인트 등 게임 특화 데이터 보관
+ * - 마이페이지 접근 시 필요한 추가 정보 제공
+ *
+ * 사용 지침:
+ * - Controller에서는 직접 Gamer 타입을 받지 말고 User로 받은 후 userType 확인
+ * - 필요한 경우에만 repository를 통해 Gamer 엔티티 조회
+ * - 예: Gamer gamer = gamerRepository.findById(user.getUid()).orElseThrow();
+ */
 @Entity
 @Table(name = "gamers")
 @DiscriminatorValue("GAMER")

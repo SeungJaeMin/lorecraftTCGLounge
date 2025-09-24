@@ -551,22 +551,78 @@ export const deckAPI = {
     return response;
   },
   
-  // 통합 저장 (생성 또는 수정)
-  saveDeck: async (deckData: { deckId?: number; deckName: string; description?: string; isPublic?: boolean }) => {
-    const response = await api.post('/decks/save', deckData);
-    return response;
+  // 통합 저장 (생성 또는 수정) - 카드와 함께
+  saveDeck: async (deckData: {
+    deckId?: number;
+    deckName: string;
+    description?: string;
+    deckType?: string;
+    isPublic?: boolean;
+    isTournamentLegal?: boolean;
+    leaderCardId?: number;
+    cards?: Array<{
+      cardId: number;
+      quantity: number;
+      isSideboard?: boolean;
+      orderIndex?: number;
+    }>;
+  }) => {
+    // deckId가 있으면 수정, 없으면 생성
+    if (deckData.deckId) {
+      const response = await api.put(`/decks/${deckData.deckId}`, deckData);
+      return response;
+    } else {
+      const response = await api.post('/decks', deckData);
+      return response;
+    }
   },
 
-  // 카드와 함께 덱 저장
-  saveDeckWithCards: async (deckData: { 
-    deckId?: number; 
-    deckName: string; 
-    description?: string; 
+  // 하위 호환성을 위한 별칭
+  saveDeckWithCards: async (deckData: {
+    deckId?: number;
+    deckName: string;
+    description?: string;
     isPublic?: boolean;
     cards: any[];
   }) => {
-    const response = await api.post('/decks/save-with-cards', deckData);
-    return response;
+    // DeckDetail 형태의 cards를 백엔드 DTO 형태로 변환
+    const transformedCards = deckData.cards.map((deckCard: any, index: number) => {
+      // DeckCard가 DeckDetail 형태인 경우
+      if (deckCard.card && deckCard.card.cardId) {
+        return {
+          cardId: deckCard.card.cardId,
+          quantity: deckCard.quantity || 1,
+          isSideboard: deckCard.isSideboard || false,
+          orderIndex: deckCard.orderIndex || index + 1
+        };
+      }
+      // 이미 올바른 형태인 경우
+      return {
+        cardId: deckCard.cardId,
+        quantity: deckCard.quantity || 1,
+        isSideboard: deckCard.isSideboard || false,
+        orderIndex: deckCard.orderIndex || index + 1
+      };
+    });
+
+    // 새로운 형식으로 변환
+    const newFormat = {
+      deckId: deckData.deckId,
+      deckName: deckData.deckName,
+      description: deckData.description,
+      deckType: 'STANDARD',
+      isPublic: deckData.isPublic,
+      isTournamentLegal: false,
+      cards: transformedCards
+    };
+    // deckId가 있으면 수정, 없으면 생성
+    if (newFormat.deckId) {
+      const response = await api.put(`/decks/${newFormat.deckId}`, newFormat);
+      return response;
+    } else {
+      const response = await api.post('/decks', newFormat);
+      return response;
+    }
   },
 
   // 덱 삭제

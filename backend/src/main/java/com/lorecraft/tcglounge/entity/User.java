@@ -7,6 +7,23 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+/**
+ * 사용자 기본 엔티티 (베이스 클래스)
+ *
+ * 역할:
+ * - 모든 사용자 타입의 공통 속성 정의
+ * - 인증/인가의 기본 단위
+ * - JOINED 상속 전략을 통해 Gamer, Admin, StoreOwner로 확장
+ *
+ * 사용 지침:
+ * - Controller에서는 항상 User 타입으로 받아서 처리
+ * - userType 필드로 사용자 타입 확인 (GAMER, ADMIN, STORE_OWNER)
+ * - 특정 타입의 추가 정보가 필요한 경우에만 캐스팅 사용
+ *
+ * 예시:
+ * @CurrentUser User user -> 모든 컨트롤러에서 이 방식 사용
+ * if ("GAMER".equals(user.getUserType())) { // 게이머 타입 확인 }
+ */
 @Entity
 @Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)

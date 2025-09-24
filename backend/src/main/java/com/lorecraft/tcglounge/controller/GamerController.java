@@ -2,6 +2,7 @@ package com.lorecraft.tcglounge.controller;
 
 import com.lorecraft.tcglounge.dto.GamerProfileDTO;
 import com.lorecraft.tcglounge.entity.Gamer;
+import com.lorecraft.tcglounge.entity.User;
 import com.lorecraft.tcglounge.entity.CardDeck;
 import com.lorecraft.tcglounge.repository.GamerRepository;
 import com.lorecraft.tcglounge.service.DeckService;
@@ -28,8 +29,12 @@ public class GamerController {
     private DeckService deckService;
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getGamerProfile(@CurrentUser Gamer gamer) {
+    public ResponseEntity<?> getGamerProfile(@CurrentUser User user) {
         try {
+            // User가 Gamer 타입인지 확인
+            Gamer gamer = gamerRepository.findById(user.getUid())
+                .orElseThrow(() -> new RuntimeException("User is not a gamer"));
+
             GamerProfileDTO profileDTO = new GamerProfileDTO(gamer);
             
             Map<String, Object> response = new HashMap<>();
@@ -47,8 +52,12 @@ public class GamerController {
     }
 
     @GetMapping("/dashboard")
-    public ResponseEntity<?> getGamerDashboard(@CurrentUser Gamer gamer) {
+    public ResponseEntity<?> getGamerDashboard(@CurrentUser User user) {
         try {
+            // User가 Gamer 타입인지 확인
+            Gamer gamer = gamerRepository.findById(user.getUid())
+                .orElseThrow(() -> new RuntimeException("User is not a gamer"));
+
             // 대시보드 데이터 구성
             Map<String, Object> dashboardData = new HashMap<>();
             
@@ -57,7 +66,7 @@ public class GamerController {
             dashboardData.put("profile", profile);
             
             // 실제 덱 정보 조회
-            List<CardDeck> userDecks = deckService.getGamerDecks(gamer.getUid());
+            List<CardDeck> userDecks = deckService.getUserDecks(user.getUserid());
             List<Map<String, Object>> decks = new ArrayList<>();
             
             for (CardDeck deck : userDecks) {
