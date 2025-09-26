@@ -18,6 +18,10 @@ public interface DeckDetailRepository extends JpaRepository<DeckDetail, DeckDeta
     List<DeckDetail> findByDeckOrderByOrderIndexAsc(CardDeck deck);
     
     List<DeckDetail> findByDeckAndIsSideboardFalseOrderByOrderIndexAsc(CardDeck deck);
+
+    // Card 정보를 함께 조회 (LazyInitializationException 방지)
+    @Query("SELECT dd FROM DeckDetail dd JOIN FETCH dd.card WHERE dd.deck = :deck AND dd.isSideboard = false ORDER BY dd.orderIndex ASC")
+    List<DeckDetail> findMainDeckCardsWithCard(@Param("deck") CardDeck deck);
     
     Optional<DeckDetail> findByDeckAndCard(CardDeck deck, Card card);
     

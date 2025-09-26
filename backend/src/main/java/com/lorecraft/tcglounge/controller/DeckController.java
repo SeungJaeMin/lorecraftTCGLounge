@@ -51,8 +51,9 @@ public class DeckController {
             @PathVariable Long deckId,
             @CurrentUser User user) {
         try {
-            // 모든 사용자가 덱을 조회할 수 있음
-            log.info("=== Getting deck {} for user {} ===", deckId, user.getUserid());
+            log.info("=== Getting deck {} for user {} ===", deckId, user != null ? user.getUserid() : "null");
+            log.info("User object: {}", user);
+            log.info("User type: {}", user != null ? user.getUserType() : "null");
 
             CardDeck deck = deckService.getDeckById(deckId, user.getUserid())
                 .orElseThrow(() -> new RuntimeException("Deck not found: " + deckId));

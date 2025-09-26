@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import java.util.*;
+import static java.util.stream.Collectors.groupingBy;
 
 @Service
 @Transactional
@@ -64,6 +65,27 @@ public class CardService {
         // batch_fetch_size는 CardImage를 별도로 조회할 때 최적화됨
         return cards;
     }
+
+    // N+1 문제 해결을 위한 배치 로딩 메서드
+    @Transactional(readOnly = true)
+    public List<CardDetailDTO> findAllWithImages() {
+        List<Card> cards = cardRepository.findAll();
+
+        // N+1 문제 해결: 모든 카드의 이미지를 한 번에 조회
+        List<Long> cardIds = cards.stream()
+            .map(Card::getCardId)
+            .toList();
+
+        Map<Long, List<CardImage>> imageMap = cardIds.isEmpty() ?
+            new HashMap<>() :
+            cardImageRepository.findByCard_CardIdIn(cardIds).stream()
+                .collect(groupingBy(img -> img.getCard().getCardId()));
+
+        return cards.stream().map(card -> {
+            List<CardImage> images = imageMap.getOrDefault(card.getCardId(), new ArrayList<>());
+            return new CardDetailDTO(card, images);
+        }).collect(java.util.stream.Collectors.toList());
+    }
     
     @Transactional(readOnly = true)
     public List<Card> searchByName(String cardName) {
@@ -95,8 +117,18 @@ public class CardService {
         Specification<Card> spec = buildSpecification(cardType, cardColor, rarity, searchTerm);
         Page<Card> cards = cardRepository.findAll(spec, pageable);
         
+        // N+1 문제 해결: 모든 카드의 이미지를 한 번에 조회
+        List<Long> cardIds = cards.getContent().stream()
+            .map(Card::getCardId)
+            .toList();
+
+        Map<Long, List<CardImage>> imageMap = cardIds.isEmpty() ?
+            new HashMap<>() :
+            cardImageRepository.findByCard_CardIdIn(cardIds).stream()
+                .collect(groupingBy(img -> img.getCard().getCardId()));
+
         return cards.map(card -> {
-            List<CardImage> images = cardImageRepository.findByCard_CardId(card.getCardId());
+            List<CardImage> images = imageMap.getOrDefault(card.getCardId(), new ArrayList<>());
             return new CardDetailDTO(card, images);
         });
     }

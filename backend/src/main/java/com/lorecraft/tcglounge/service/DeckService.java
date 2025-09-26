@@ -7,6 +7,8 @@ import com.lorecraft.tcglounge.repository.CardRepository;
 import com.lorecraft.tcglounge.repository.GamerRepository;
 import com.lorecraft.tcglounge.repository.UserRepository;
 import java.util.ArrayList;
+import jakarta.persistence.EntityManager;
+import org.springframework.transaction.annotation.Transactional;
 import com.lorecraft.tcglounge.dto.deck.DeckSaveRequestDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,17 +32,20 @@ public class DeckService {
     private final CardRepository cardRepository;
     private final GamerRepository gamerRepository;
     private final UserRepository userRepository;
+    private final EntityManager entityManager;
 
     public DeckService(CardDeckRepository deckRepository,
                       DeckDetailRepository deckDetailRepository,
                       CardRepository cardRepository,
                       GamerRepository gamerRepository,
-                      UserRepository userRepository) {
+                      UserRepository userRepository,
+                      EntityManager entityManager) {
         this.deckRepository = deckRepository;
         this.deckDetailRepository = deckDetailRepository;
         this.cardRepository = cardRepository;
         this.gamerRepository = gamerRepository;
         this.userRepository = userRepository;
+        this.entityManager = entityManager;
     }
 
     // ========== DECK CRUD ==========
@@ -86,16 +91,8 @@ public class DeckService {
     @Transactional(readOnly = true)
     public List<DeckDetail> getDeckCards(Long deckId, String userid) {
         CardDeck deck = validateDeckAccess(deckId, userid);
-        List<DeckDetail> deckDetails = deckDetailRepository.findByDeckAndIsSideboardFalseOrderByOrderIndexAsc(deck);
-
-        // Eager fetch card information to avoid lazy loading issues
-        for (DeckDetail detail : deckDetails) {
-            if (detail.getCard() != null) {
-                detail.getCard().getCardName(); // Force initialization
-                detail.getCard().getCardType();
-                detail.getCard().getCardColor();
-            }
-        }
+        // Card 정보를 함께 조회하여 Lazy Loading 문제 방지
+        List<DeckDetail> deckDetails = deckDetailRepository.findMainDeckCardsWithCard(deck);
 
         return deckDetails;
     }
@@ -237,7 +234,8 @@ public class DeckService {
         CardDeck deck = deckRepository.findById(deckId)
             .orElseThrow(() -> new RuntimeException("Deck not found: " + deckId));
 
-        return deckDetailRepository.findByDeckAndIsSideboardFalseOrderByOrderIndexAsc(deck);
+        // Card 정보를 함께 조회하여 Lazy Loading 문제 방지
+        return deckDetailRepository.findMainDeckCardsWithCard(deck);
     }
 
     public CardDeck generateRandomDeck(String userid, String deckName) {
@@ -360,6 +358,8 @@ public class DeckService {
 
         // Clear existing cards (will be re-added)
         deckDetailRepository.deleteByDeck(deck);
+        // Flush to ensure deletion is completed before inserting new cards
+        entityManager.flush();
 
         return deck;
     }

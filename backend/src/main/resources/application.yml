@@ -12,7 +12,7 @@ spring:
       on-profile: dev
   
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/tcg_lounge_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/tcg_lounge_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&useUnicode=true}
     username: ${SPRING_DATASOURCE_USERNAME:tcg_user}
     password: ${SPRING_DATASOURCE_PASSWORD:tcg_password}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -71,7 +71,7 @@ spring:
       on-profile: docker
       
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/tcg_lounge_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/tcg_lounge_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&useUnicode=true}
     username: ${SPRING_DATASOURCE_USERNAME:tcg_user}
     password: ${SPRING_DATASOURCE_PASSWORD:tcg_password}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -129,7 +129,7 @@ spring:
       on-profile: prod
       
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/tcg_lounge}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/tcg_lounge?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&useUnicode=true}
     username: ${DB_USERNAME:tcg_user}
     password: ${DB_PASSWORD:tcg_password}
     driver-class-name: com.mysql.cj.jdbc.Driver

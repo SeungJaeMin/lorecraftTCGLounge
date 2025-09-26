@@ -40,13 +40,29 @@ public class CardController {
 
     @GetMapping
     public ResponseEntity<List<CardDTO>> getAllCards() {
-        List<Card> cards = cardService.findAll();
-        List<CardDTO> cardDTOs = cards.stream().map(card -> {
-            List<CardImage> images = cardImageService.getImagesByCardId(card.getCardId());
-            List<CardImageDTO> imageDTOs = images.stream()
-                .map(CardImageDTO::new)
-                .collect(java.util.stream.Collectors.toList());
-            return new CardDTO(card, imageDTOs);
+        // N+1 문제 해결: 배치 로딩 사용
+        List<CardDetailDTO> cardDetails = cardService.findAllWithImages();
+        List<CardDTO> cardDTOs = cardDetails.stream().map(cardDetail -> {
+            // CardDetailDTO를 CardDTO로 변환
+            CardDTO cardDTO = new CardDTO();
+            cardDTO.setCardId(cardDetail.getCardId());
+            cardDTO.setCardName(cardDetail.getCardName());
+            cardDTO.setCardImg(cardDetail.getCardImg());
+            cardDTO.setDescription(cardDetail.getDescription());
+            if (cardDetail.getCardColor() != null) {
+                cardDTO.setCardColor(Card.CardColor.valueOf(cardDetail.getCardColor()));
+            }
+            if (cardDetail.getRarity() != null) {
+                cardDTO.setRarity(Card.CardRarity.valueOf(cardDetail.getRarity()));
+            }
+            cardDTO.setCost(cardDetail.getCost());
+            cardDTO.setCardNumber(cardDetail.getCardNumber());
+            cardDTO.setCardType(cardDetail.getCardType());
+            cardDTO.setCreatedAt(cardDetail.getCreatedAt());
+            cardDTO.setUpdatedAt(cardDetail.getUpdatedAt());
+            cardDTO.setImages(cardDetail.getImages());
+
+            return cardDTO;
         }).collect(java.util.stream.Collectors.toList());
         return ResponseEntity.ok(cardDTOs);
     }

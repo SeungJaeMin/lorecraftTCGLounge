@@ -17,4 +17,7 @@ public interface CardImageRepository extends JpaRepository<CardImage, Long> {
     
     // 카테고리별 이미지 조회
     List<CardImage> findByImageCategory(String imageCategory);
+
+    // 여러 카드의 이미지를 한번에 조회 (N+1 문제 해결용)
+    List<CardImage> findByCard_CardIdIn(List<Long> cardIds);
 }
